@@ -3,16 +3,15 @@ package ca.xtreme.xlbootcamp;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.params.ConnManagerParams;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import android.app.ListActivity;
@@ -44,6 +43,8 @@ public class XLBootcampActivity extends ListActivity {
 //        }
         final HttpResponse response;
         final HttpGet get = new HttpGet(URI);
+        ArrayList<String> tweetMessageList = new ArrayList<String>();
+        
         try {
         	Log.d(TAG, "Http get from Twitter search api");
         	response = getHttpClient().execute(get);
@@ -58,18 +59,39 @@ public class XLBootcampActivity extends ListActivity {
         	}
         	
         	JSONTokener tokener = new JSONTokener(builder.toString());
+        	
+        	//create a JSONObject so that I get get values using keys
         	try {
-				JSONArray finalResult = new JSONArray(tokener);
-				
-				//parse into a array of strings
-				
-				//code to test whether the get call was made properly
-//				String jsonString = finalResult.toString();
-//				Log.d(TAG, "pulled json data");
-//				Log.d(TAG, jsonString);
-			} catch (JSONException e) {
-				Log.e(TAG, "JSONException", e);
+				JSONObject jsonObj = new JSONObject(tokener);
+				//create an array of Strings of just tweet messages
+				JSONArray results = jsonObj.getJSONArray("results");
+				Log.d(TAG, "json results from twitter:" + results.toString());
+//				for each result
+//					create a JSONObject representing the tweet
+//					get only the message (text field in the json response)
+//					append it to a list of Java strings
+				for(int i=0; i<results.length(); i++) {
+					JSONObject aTweet = results.getJSONObject(i);
+					String message = aTweet.getString("text");
+					tweetMessageList.add(message);
+				}
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				Log.e(TAG, "JSONException problem creating JSONObject from tokener:", e1);
 			}
+        	
+//        	try {
+//				JSONArray finalResult = new JSONArray(tokener);
+//				
+//				//parse into a array of strings
+//				
+//				//code to test whether the get call was made properly
+////				String jsonString = finalResult.toString();
+////				Log.d(TAG, "pulled json data");
+////				Log.d(TAG, jsonString);
+//			} catch (JSONException e) {
+//				Log.e(TAG, "JSONException", e);
+//			}
         } catch (final IOException e) {
         	Log.e(TAG, "IOException", e);
         	Log.d(TAG, "IOException: Message: " + e.getMessage());
@@ -77,8 +99,8 @@ public class XLBootcampActivity extends ListActivity {
         	Log.v(TAG, "Complete");
         }
         
-        String[] countries = getResources().getStringArray(R.array.countries_array);
-        setListAdapter(new ArrayAdapter<String>(this, R.layout.list_item, countries));
+//        String[] countries = getResources().getStringArray(R.array.countries_array);
+        setListAdapter(new ArrayAdapter<String>(this, R.layout.list_item, tweetMessageList));
     }
     
     // creates and returns an http client object to call twitter search

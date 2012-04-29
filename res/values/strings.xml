@@ -11,4 +11,6 @@
         <item>Belize</item>
         <item>Benin</item>
     </string-array>
+        <string name="refresh">Refresh</string>
+        <string name="nothing_here_to_see_">Nothing here to see!</string>
 </resources>

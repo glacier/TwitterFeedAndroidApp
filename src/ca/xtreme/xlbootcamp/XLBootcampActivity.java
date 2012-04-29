@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import android.app.ListActivity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ArrayAdapter;
@@ -29,34 +30,32 @@ public class XLBootcampActivity extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        //what is HTTPEntity?
-        ArrayList<String> tweets = getTweets();
-        
-        //populate a list view with tweets
-        setListAdapter(new ArrayAdapter<String>(this, R.layout.list_item, tweets));
+        new GetFromTwitterTask().execute(URI);
     }
     
-    // Gets and parses the latest tweets from Twitter search API
-    private ArrayList<String> getTweets() {
+    // Gets and parses the latest tweets given a uri Twitter search API
+    private ArrayList<String> getTweets(String uri) {
        ArrayList<String> tweetMessageList = new ArrayList<String>();
        final HttpResponse response;
-       final HttpGet get = new HttpGet(URI);
+       final HttpGet get = new HttpGet(uri);
        
        try {
     	   Log.d(TAG, "Http get from Twitter search api");
     	   response = getHttpClient().execute(get);
 
     	   Log.d(TAG, "Parse data from the response");
+    	
     	   //read and serial JSON data into a String
     	   BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
     	   StringBuilder builder = new StringBuilder();
+    	   
     	   for (String line = null; (line = reader.readLine()) != null;) {
     		   builder.append(line).append("\n");
     	   }
 
     	   //parse and extract the data in JSON
     	   JSONTokener tokener = new JSONTokener(builder.toString());
+    	   
     	   //create a JSONObject so that I can get values corresponding to keys
     	   try {
     		   JSONObject jsonObj = new JSONObject(tokener);
@@ -85,8 +84,31 @@ public class XLBootcampActivity extends ListActivity {
 	}
 
     private HttpClient getHttpClient() {
+    	// todo learn about HttpEntity and related classes 
     	HttpClient httpClient = new DefaultHttpClient();
     	return httpClient;
     }
     
+    // todo learn about java generics and how to parameterize asynctask properly
+    private class GetFromTwitterTask extends AsyncTask<String, Integer, ArrayList<String>> {
+    	@Override
+    	protected ArrayList<String> doInBackground(String... uri){
+    		//pull tweets from twitter
+    		return getTweets(uri[0]);
+    	}
+    	
+    	@Override
+    	protected void onPostExecute(ArrayList<String> result) {
+    		//populate the list view container with tweets
+    		//todo learn why I can get the context this in this way.
+    		setListAdapter(new ArrayAdapter<String>(XLBootcampActivity.this, R.layout.list_item, result));
+    	}
+    }
 }
+
+
+
+
+
+
+

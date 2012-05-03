@@ -37,7 +37,6 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
 	public static final String URI = "http://search.twitter.com/search.json?q=%23bieber";
 	public static final int HTTP_REQUEST_TIMEOUT_MS = 30 * 1000;
 	private static final String TAG = "XLBootcamp";
-//	private twitterTask = new GetFromTwitterTask();
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,8 +71,6 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
     			builder.append(line).append("\n");
     		}
     		
-//    		Log.d(TAG, builder.toString());
-    		
     		//parse and extract the data in JSON
     		JSONTokener tokener = new JSONTokener(builder.toString());
 
@@ -84,18 +81,14 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
     			//create an array of Strings of just tweet messages
     			JSONArray results = jsonObj.getJSONArray("results");
 
-    			//Log.d(TAG, "json results from twitter:" + results.toString());
-
     			for(int i=0; i<results.length(); i++) {
     				JSONObject aTweet = results.getJSONObject(i);
+    				
     				String tweetContent = aTweet.getString("text");
     				String timestamp = aTweet.getString("created_at");
     				String profilePic = aTweet.getString("profile_image_url");
     				String username = aTweet.getString("from_user_name");
-    				
-    				Log.d(TAG, "username=" + username);
-    				Log.d(TAG, "timestamp=" + timestamp);
-    				
+    			
     				tweetMessageList.add(new Tweet(username, tweetContent, timestamp, profilePic));
     			}
     		} catch (JSONException e) {
@@ -115,9 +108,11 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
     	// todo learn about HttpEntity and related classes 
 
     	HttpClient httpClient = new DefaultHttpClient();
-    	// TODO fix invalid cookie header
+    	// TODO figure out how to fix invalid cookie header?
+    	// But this doesn't seem to affect the API calls
     	httpClient.getParams().setParameter( ClientPNames.COOKIE_POLICY,
     			CookiePolicy.RFC_2965 );
+    	
     	return httpClient;
     }
 
@@ -133,11 +128,8 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
     	protected void onPostExecute(ArrayList<Tweet> result) {
     		//populate the list view container with tweets
     		//todo learn why I can get the context this in this way.
-    		Log.d(TAG, "onPostExecute");
     		ListView list = (ListView) findViewById(android.R.id.list);
-    		//TODO extend ArrayAdapter
     		list.setAdapter(new TwitterArrayAdapter(XLBootcampActivity.this, R.layout.list_item, result));
-//    		list.setAdapter(new ArrayAdapter<String>(XLBootcampActivity.this, R.layout.list_item, result));
     	}
     }
 
@@ -152,10 +144,8 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
 		private ArrayList<Tweet> items;
 		
 		public TwitterArrayAdapter(Context context, int textViewResourceId, ArrayList<Tweet> items) {
+			// important, must pass items into the super() call
 			super(context, textViewResourceId, items);
-			// TODO Auto-generated constructor stub
-			Log.d(TAG, "constructor TwitterArrayAdapter called");
-			Log.d(TAG, "number of items = " + items.size());
 			this.items = items;
 		}
 		
@@ -170,37 +160,29 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
 			Tweet twt = items.get(position);
 			Log.d(TAG, "Populate view with custom tweet object");
 			if (twt != null) {
-				//TODO display image by url 
+				//TODO display image by url
 				// I don't think this will work because at this point the image is not bound to the ImageView UI element
 //				ImageView profileImage = (ImageView) v.findViewById(R.id.profile_pic);
 //				
 				TextView userText = (TextView) v.findViewById(R.id.username);
-				
 				if(userText != null){
 					userText.setText(twt.getUsername());
-//					profileImage.setText(twt.getProfilePic());
 				}
 
 				TextView timeText = (TextView) v.findViewById(R.id.timestamp);
 				if (timeText != null) {
 					timeText.setText(twt.getTimestamp());
-				}else {
-					Log.d(TAG, "timeText is null");
 				}
 				
-
 				TextView messageText = (TextView) v.findViewById(R.id.tweet_content);
 				if(messageText != null) {
 					messageText.setText(twt.getTweetContent());
 				}
-			}else {
-				Log.d(TAG, "twt object was null");
 			}
+			
 			return v;
 		}
-		
 	}
-
 }
 
 

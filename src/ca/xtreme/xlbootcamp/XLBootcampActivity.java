@@ -161,9 +161,16 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
 			Log.d(TAG, "Populate view with custom tweet object");
 			if (twt != null) {
 				//TODO display image by url
+				
+				//see http://www.softwarepassion.com/android-series-custom-listview-items-and-adapters/
+				//http://developer.android.com/resources/tutorials/views/hello-gallery.html
+				//http://developer.android.com/resources/samples/HoneycombGallery/index.html
+				//http://developer.android.com/guide/topics/fundamentals/processes-and-threads.html -- example of how to download images
+				//http://developer.android.com/resources/samples/XmlAdapters/src/com/example/android/xmladapters/ImageDownloader.html -- complicated but seems to have a set of examples.
+				
 				// I don't think this will work because at this point the image is not bound to the ImageView UI element
 //				ImageView profileImage = (ImageView) v.findViewById(R.id.profile_pic);
-//				
+				
 				TextView userText = (TextView) v.findViewById(R.id.username);
 				if(userText != null){
 					userText.setText(twt.getUsername());

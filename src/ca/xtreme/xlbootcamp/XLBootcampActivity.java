@@ -1,11 +1,16 @@
 package ca.xtreme.xlbootcamp;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.params.ClientPNames;
@@ -18,6 +23,9 @@ import org.json.JSONTokener;
 
 import android.app.ListActivity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,6 +35,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -169,8 +178,45 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
 				//http://developer.android.com/resources/samples/XmlAdapters/src/com/example/android/xmladapters/ImageDownloader.html -- complicated but seems to have a set of examples.
 				
 				// I don't think this will work because at this point the image is not bound to the ImageView UI element
-//				ImageView profileImage = (ImageView) v.findViewById(R.id.profile_pic);
 				
+//				ImageView profileImage = (ImageView) v.findViewById(R.id.profilepic); 
+//				String imageUrl = twt.getProfilePic();
+//	            final HttpGet getRequest = new HttpGet(imageUrl);
+//	            String cookie = params[1];
+//	            if (cookie != null) {
+//	                getRequest.setHeader("cookie", cookie);
+//	            }
+
+//	            try {
+//	            	final AndroidHttpClient client = AndroidHttpClient.newInstance("Android");
+//	                HttpResponse response = client.execute(getRequest);
+//	                final int statusCode = response.getStatusLine().getStatusCode();
+//	                
+//	                if (statusCode != HttpStatus.SC_OK) {
+//	                    Log.w("ImageDownloader", "Error " + statusCode +
+//	                            " while retrieving bitmap from " + imageUrl);
+//	                    return null;
+//	                }
+//
+//	                final HttpEntity entity = response.getEntity();
+//	                final Bitmap bitmap;
+//	                if (entity != null) {
+//						// download image and set it into the image view
+//						InputStream inputStream = entity.getContent();
+//						//final ByteArrayOutputStream dataStream = new ByteArrayOutputStream();
+//						//outputStream = new BufferedOutputStream(dataStream, IO_BUFFER_SIZE);
+//						//copy(inputStream, outputStream);
+//						//outputStream.flush();
+//			
+////						final byte[] data = dataStream.toByteArray();
+////						final Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+//						bitmap = BitmapFactory.decodeStream(inputStream);
+//	                }
+//				// FIXME : Should use BitmapFactory.decodeStream(inputStream) instead.
+//	            } finally {
+//	            	
+//	            }
+                  
 				TextView userText = (TextView) v.findViewById(R.id.username);
 				if(userText != null){
 					userText.setText(twt.getUsername());

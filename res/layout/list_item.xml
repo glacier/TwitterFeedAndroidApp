@@ -1,26 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="wrap_content"
-	android:layout_height="wrap_content"
-	android:orientation="vertical" >
-<!-- <ImageView 
-    android:id="@+id/profilepic"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:contentDescription="@string/a_picture"/> -->
-<TextView
-	android:id="@+id/username"
-	android:layout_width="wrap_content"
-	android:layout_height="wrap_content"
-	android:textSize="12sp" />
-<TextView
-	android:id="@+id/timestamp"
-	android:layout_width="wrap_content"
-	android:layout_height="wrap_content"
-	android:textSize="12sp" />
-<TextView 
-	android:id="@+id/tweet_content"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:textSize="12sp" />
-</LinearLayout>
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
+
+        <ImageView
+            android:id="@+id/profile_pic"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="5sp"
+            android:layout_marginRight="5sp"
+            android:src="@drawable/ball" />
+
+        <TextView
+            android:id="@+id/username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/profile_pic"
+            android:layout_marginTop="5sp"
+            android:layout_marginBottom="3sp"
+            android:textStyle="bold"
+            android:text="username"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/tweet_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/username"
+            android:layout_toRightOf="@+id/profile_pic"
+            android:text="tweet content"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tweet_content"
+            android:layout_toRightOf="@+id/profile_pic"
+            android:layout_alignParentRight="true"
+            android:text="timestamp"
+            android:textSize="8sp" />
+
+    </RelativeLayout>

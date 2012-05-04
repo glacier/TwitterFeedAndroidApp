@@ -10,8 +10,7 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:layout_marginTop="5sp"
-            android:layout_marginRight="5sp"
-            android:src="@drawable/ball" />
+            android:layout_marginRight="5sp" />
 
         <TextView
             android:id="@+id/username"

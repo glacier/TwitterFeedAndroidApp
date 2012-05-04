@@ -1,10 +1,8 @@
 package ca.xtreme.xlbootcamp;
 
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,17 +20,18 @@ public class TwitterArrayAdapter extends ArrayAdapter<Tweet> {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View v = convertView;
 		
-		//inflates the view for a row in list view
+		//inflate a new row if its not a recycled view
 		if (v == null) {
 			v = LayoutInflater.from(getContext()).inflate(R.layout.list_item, null);
 		}
 		
-		//display tweet items into a row view
+		//display a tweet item into a row view
 		Tweet twt = getItem(position);
 		ImageView profilePic = (ImageView) v.findViewById(R.id.profile_pic);
 		
 		if (twt != null) {
 			String imageUrl = twt.getProfilePic();
+			
 			//tag the image view with the corresponding image url that it should display
 			profilePic.setTag(imageUrl);	
 			new DownloadImageTask(profilePic).execute(imageUrl);

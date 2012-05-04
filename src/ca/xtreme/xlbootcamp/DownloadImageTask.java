@@ -62,7 +62,9 @@ public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 	}
 	
 	protected void onPostExecute(Bitmap result) {
-		if(!imageView.getTag().toString().equals(imageUrl)) {
+		String imageTag = imageView.getTag().toString();
+		
+		if(!imageTag.equals(imageUrl)) {
 			return;
 		}
 		

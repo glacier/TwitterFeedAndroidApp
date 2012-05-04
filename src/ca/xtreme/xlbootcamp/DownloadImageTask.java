@@ -13,14 +13,24 @@ import android.graphics.BitmapFactory;
 import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 
 
-public class DownloadImageTask extends AsyncTask<String, Integer, Bitmap> {
+public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 	private static final String TAG = "XLBootcamp";
+	private ImageView imageView;
+	private String imageUrl;
+	
+	public DownloadImageTask(ImageView imageView) {
+		this.imageView = imageView;
+	}
 	
 	protected Bitmap doInBackground(String... uri){
+		imageUrl = uri[0];
+		
 		//download a image given a uri
-        final HttpGet getRequest = new HttpGet(uri[0]);
+        final HttpGet getRequest = new HttpGet(imageUrl);
 		Bitmap bitmap = null;
 
         try {
@@ -49,5 +59,19 @@ public class DownloadImageTask extends AsyncTask<String, Integer, Bitmap> {
         }
         
 		return bitmap;
+	}
+	
+	protected void onPostExecute(Bitmap result) {
+		if(!imageView.getTag().toString().equals(imageUrl)) {
+			return;
+		}
+		
+		//set downloaded image into the image view
+		if(result != null && imageView != null){
+			imageView.setVisibility(View.VISIBLE);
+			imageView.setImageBitmap(result);
+		}else{
+			imageView.setVisibility(View.GONE);
+		}
 	}
 }

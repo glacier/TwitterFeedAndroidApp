@@ -27,26 +27,16 @@ public class TwitterArrayAdapter extends ArrayAdapter<Tweet> {
 			v = LayoutInflater.from(getContext()).inflate(R.layout.list_item, null);
 		}
 		
-		//inflate items into custom view
+		//display tweet items into a row view
 		Tweet twt = getItem(position);
-		Bitmap bitmap = null;
+		ImageView profilePic = (ImageView) v.findViewById(R.id.profile_pic);
 		
 		if (twt != null) {
 			String imageUrl = twt.getProfilePic();
-			
-			try {
-				bitmap = new DownloadImageTask().execute(imageUrl).get();
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
-			} catch (ExecutionException e1) {
-				e1.printStackTrace();
-			}
-            
-            ImageView profilePic = (ImageView) v.findViewById(R.id.profile_pic);
-            if(profilePic != null) {
-            	profilePic.setImageBitmap(bitmap);	
-            }
-            
+			//tag the image view with the corresponding image url that it should display
+			profilePic.setTag(imageUrl);	
+			new DownloadImageTask(profilePic).execute(imageUrl);
+
 			TextView userText = (TextView) v.findViewById(R.id.username);
 			if(userText != null){
 				userText.setText(twt.getUsername());

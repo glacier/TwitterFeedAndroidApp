@@ -26,7 +26,7 @@ import android.widget.ListView;
 public class XLBootcampActivity extends ListActivity implements OnClickListener {
     /** Called when the activity is first created. */
 	
-	public static final String URI = "http://search.twitter.com/search.json?q=%23nba";
+	public static final String URI = "http://search.twitter.com/search.json?q=%23bieber";
 	public static final int HTTP_REQUEST_TIMEOUT_MS = 30 * 1000;
 	private static final String TAG = "XLBootcamp";
 	
@@ -40,6 +40,7 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
         button.setOnClickListener(this);
         
         //populate with feeds when app is launched
+        //TODO Add a timer to run this task every 30 seconds to load tweet
         new GetFromTwitterTask().execute(URI);
     }
     
@@ -85,7 +86,9 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
     	} finally {
     		Log.v(TAG, "Complete");
     	}
+    	
     	Log.d(TAG, "number of tweets saved = " + tweetMessageList.size());
+    	
     	return tweetMessageList;
     }
 
@@ -104,6 +107,8 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
     	@Override
     	protected void onPostExecute(ArrayList<Tweet> result) {
     		ListView list = (ListView) findViewById(android.R.id.list);
+    		
+    		//TODO add list "push down" animation
     		list.setAdapter(new TwitterArrayAdapter(XLBootcampActivity.this, R.layout.list_item, result));
     	}
     }

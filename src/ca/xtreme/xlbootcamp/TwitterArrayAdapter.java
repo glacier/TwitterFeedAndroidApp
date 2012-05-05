@@ -3,12 +3,10 @@ package ca.xtreme.xlbootcamp;
 import java.util.ArrayList;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 public class TwitterArrayAdapter extends ArrayAdapter<Tweet> {
@@ -28,20 +26,8 @@ public class TwitterArrayAdapter extends ArrayAdapter<Tweet> {
 		
 		//display a tweet item into a row view
 		Tweet twt = getItem(position);
-		ImageView profilePic = (ImageView) v.findViewById(R.id.profile_pic);
 		
-		if (twt != null) {
-			String imageUrl = twt.getProfilePic();
-			
-			//tag the image view with the corresponding image url that it should display
-			profilePic.setTag(imageUrl);	
-			
-			// Download images in the UI thread instead of using a background thread (AsyncTask)
-			ImageView imageView = (ImageView) v.findViewById(R.id.profile_pic);
-			new DownloadImageTask(imageView).execute(imageUrl);
-					
-//			imageView.setImageBitmap(bitmapImage);
-
+		if (twt != null) {			
 			TextView userText = (TextView) v.findViewById(R.id.username);
 			if(userText != null){
 				userText.setText(twt.getUsername());

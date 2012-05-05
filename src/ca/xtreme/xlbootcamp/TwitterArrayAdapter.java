@@ -37,10 +37,10 @@ public class TwitterArrayAdapter extends ArrayAdapter<Tweet> {
 			profilePic.setTag(imageUrl);	
 			
 			// Download images in the UI thread instead of using a background thread (AsyncTask)
-			Bitmap bitmapImage = BitmapDownloader.downloadBitmap(imageUrl);
-			
 			ImageView imageView = (ImageView) v.findViewById(R.id.profile_pic);
-			imageView.setImageBitmap(bitmapImage);
+			new DownloadImageTask(imageView).execute(imageUrl);
+					
+//			imageView.setImageBitmap(bitmapImage);
 
 			TextView userText = (TextView) v.findViewById(R.id.username);
 			if(userText != null){

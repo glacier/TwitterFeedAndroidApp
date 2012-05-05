@@ -10,7 +10,8 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:layout_marginTop="5sp"
-            android:layout_marginRight="5sp" />
+            android:layout_marginRight="5sp" 
+            android:contentDescription="image"/>
 
         <TextView
             android:id="@+id/username"
@@ -21,7 +22,7 @@
             android:layout_marginTop="5sp"
             android:layout_marginBottom="3sp"
             android:textStyle="bold"
-            android:text="username"
+            android:text=""
             android:textSize="10sp" />
 
         <TextView
@@ -30,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/username"
             android:layout_toRightOf="@+id/profile_pic"
-            android:text="tweet content"
+            android:text=""
             android:textSize="10sp" />
 
         <TextView
@@ -40,7 +41,7 @@
             android:layout_below="@id/tweet_content"
             android:layout_toRightOf="@+id/profile_pic"
             android:layout_alignParentRight="true"
-            android:text="timestamp"
+            android:text=""
             android:textSize="8sp" />
 
     </RelativeLayout>

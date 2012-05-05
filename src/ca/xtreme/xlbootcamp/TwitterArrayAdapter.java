@@ -3,6 +3,7 @@ package ca.xtreme.xlbootcamp;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +35,12 @@ public class TwitterArrayAdapter extends ArrayAdapter<Tweet> {
 			
 			//tag the image view with the corresponding image url that it should display
 			profilePic.setTag(imageUrl);	
-			new DownloadImageTask(profilePic).execute(imageUrl);
+			
+			// Download images in the UI thread instead of using a background thread (AsyncTask)
+			Bitmap bitmapImage = BitmapDownloader.downloadBitmap(imageUrl);
+			
+			ImageView imageView = (ImageView) v.findViewById(R.id.profile_pic);
+			imageView.setImageBitmap(bitmapImage);
 
 			TextView userText = (TextView) v.findViewById(R.id.username);
 			if(userText != null){

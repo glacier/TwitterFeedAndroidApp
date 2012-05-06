@@ -55,7 +55,6 @@ public class BitmapDownloader {
 				client.close();
 			}
 		}
-
 		return null;
 	}
 }

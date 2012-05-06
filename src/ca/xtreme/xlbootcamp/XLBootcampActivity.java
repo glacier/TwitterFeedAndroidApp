@@ -1,19 +1,8 @@
 package ca.xtreme.xlbootcamp;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
 import android.app.ListActivity;
-import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,15 +13,17 @@ import android.widget.ListView;
 
 public class XLBootcampActivity extends ListActivity implements OnClickListener {
     /** Called when the activity is first created. */
-	
-	public static final String URI = "http://search.twitter.com/search.json?q=%23bieber&rpp=100";
+
 	public static final int HTTP_REQUEST_TIMEOUT_MS = 30 * 1000;
 	private static final String TAG = "XLBootcamp";
+	private Twitter twitter;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        
+        twitter = new Twitter(this);
         
         //find button and attach a listener to it
         Button button = (Button) findViewById(R.id.button);
@@ -40,81 +31,32 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
         
         //populate with feeds when app is launched
         //TODO Add a timer to run this task every 30 seconds to load tweet
-        new GetFromTwitterTask().execute(URI);
-    }
-    
-    // Gets and parses the latest tweets given a uri Twitter search API
-    private ArrayList<Tweet> getTweets(String uri) {
-    	ArrayList<Tweet> tweetMessageList = new ArrayList<Tweet>();
-    	final AndroidHttpClient httpClient = AndroidHttpClient.newInstance("Android");
-    	final HttpResponse response;
-    	final HttpGet get = new HttpGet(uri);
-
-    	try {
-    		response = httpClient.execute(get);
-    		
-    		//read and serialize JSON data into a string
-    		BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
-    		StringBuilder builder = new StringBuilder();
-
-    		for (String line = null; (line = reader.readLine()) != null;) {
-    			builder.append(line).append("\n");
-    		}
-    		
-    		//parse and extract JSON data
-    		JSONTokener tokener = new JSONTokener(builder.toString());
-    		try {
-    			JSONObject jsonObj = new JSONObject(tokener);
-    			JSONArray results = jsonObj.getJSONArray("results");
-
-    			for(int i=0; i<results.length(); i++) {
-    				JSONObject aTweet = results.getJSONObject(i);
-    				
-    				String tweetContent = aTweet.getString("text");
-    				String timestamp = aTweet.getString("created_at");
-    				String profilePic = aTweet.getString("profile_image_url");
-    				String username = aTweet.getString("from_user_name");
-    			
-    				tweetMessageList.add(new Tweet(username, tweetContent, timestamp, profilePic));
-    			}
-    		} catch (JSONException e) {
-    			Log.e(TAG, "JSONException problem creating JSONObject from tokener:", e);
-    		}
-    	} catch (final IOException e) {
-    		Log.e(TAG, "IOException", e);
-    		Log.d(TAG, "IOException: Message: " + e.getMessage());
-    	} finally {
-    		if(httpClient != null) {
-    			httpClient.close();
-    		}
-    	}
-    	
-    	Log.d(TAG, "number of tweets saved = " + tweetMessageList.size());
-    	
-    	return tweetMessageList;
+//        new GetFromTwitterTask().execute(URI);
+        
     }
 
-    private class GetFromTwitterTask extends AsyncTask<String, Integer, ArrayList<Tweet>> {
-    	@Override
-    	protected ArrayList<Tweet> doInBackground(String... uri){
-    		//pull tweets from twitter
-    		return getTweets(uri[0]);
+    private class DownloadTweetTask extends AsyncTask<Object, Integer, ArrayList<Tweet>> {
+
+
+		@Override
+    	protected ArrayList<Tweet> doInBackground(Object... obj){
+    		return twitter.getTimelineUpdates();
     	}
 
     	@Override
     	protected void onPostExecute(ArrayList<Tweet> result) {
     		ListView list = (ListView) findViewById(android.R.id.list);
-    		
     		//TODO add list "push down" animation
-    		list.setAdapter(new TwitterArrayAdapter(XLBootcampActivity.this, R.layout.list_item, result));
+//    		SimpleCursorAdapter adapter = new SimpleCursorAdapter(XLBootcampActivity.this, R.layout.list_item, result, Twitter.FROM, Twitter.TO);
+    		TwitterArrayAdapter adapter = new TwitterArrayAdapter(XLBootcampActivity.this, R.layout.list_item, result);
+    		list.setAdapter(adapter);
     	}
     }
 
 	public void onClick(View v) {
 		Log.d(TAG, "Refreshed feed");
-		new GetFromTwitterTask().execute(URI);
+		new DownloadTweetTask().execute();
 	}
-	
 }
 
 

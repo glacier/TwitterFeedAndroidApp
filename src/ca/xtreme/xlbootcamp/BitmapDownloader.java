@@ -6,24 +6,19 @@ import java.io.InputStream;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
 public class BitmapDownloader {
 	// Taken from http://android-developers.blogspot.ca/2010/07/multithreading-for-performance.html
 	public static Bitmap downloadBitmap(String uri) {
-		//download a image given a uri
-		Log.d("BitmapDownloader", "Downloading " + uri);
-		
-//		final AndroidHttpClient client = AndroidHttpClient.newInstance("Android");
-		final HttpClient client = new DefaultHttpClient();
+		final AndroidHttpClient client = AndroidHttpClient.newInstance("Android");
 		final HttpGet getRequest = new HttpGet(uri);
-
+		
 		try {
 			HttpResponse response = client.execute(getRequest);
 			final int statusCode = response.getStatusLine().getStatusCode();
@@ -56,10 +51,9 @@ public class BitmapDownloader {
 			getRequest.abort();
 			Log.d("BitmapDownloader", "Problem downloading image" + e);
 		} finally {
-//			if(client != null) {
-//				client.close();
-				
-//			}
+			if(client != null) {
+				client.close();
+			}
 		}
 
 		return null;

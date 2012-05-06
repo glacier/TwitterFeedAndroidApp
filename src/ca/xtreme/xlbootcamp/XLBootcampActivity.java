@@ -6,15 +6,14 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import android.app.ListActivity;
+import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -47,11 +46,12 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
     // Gets and parses the latest tweets given a uri Twitter search API
     private ArrayList<Tweet> getTweets(String uri) {
     	ArrayList<Tweet> tweetMessageList = new ArrayList<Tweet>();
+    	final AndroidHttpClient httpClient = AndroidHttpClient.newInstance("Android");
     	final HttpResponse response;
     	final HttpGet get = new HttpGet(uri);
 
     	try {
-    		response = getHttpClient().execute(get);
+    		response = httpClient.execute(get);
     		
     		//read and serialize JSON data into a string
     		BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"));
@@ -84,17 +84,14 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
     		Log.e(TAG, "IOException", e);
     		Log.d(TAG, "IOException: Message: " + e.getMessage());
     	} finally {
-    		Log.v(TAG, "Complete");
+    		if(httpClient != null) {
+    			httpClient.close();
+    		}
     	}
     	
     	Log.d(TAG, "number of tweets saved = " + tweetMessageList.size());
     	
     	return tweetMessageList;
-    }
-
-    private HttpClient getHttpClient() {
-    	HttpClient httpClient = new DefaultHttpClient();
-    	return httpClient;
     }
 
     private class GetFromTwitterTask extends AsyncTask<String, Integer, ArrayList<Tweet>> {

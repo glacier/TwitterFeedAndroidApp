@@ -3,7 +3,6 @@ package ca.xtreme.xlbootcamp;
 import java.util.ArrayList;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,32 +29,26 @@ public class TwitterArrayAdapter extends ArrayAdapter<Tweet> {
 		Tweet twt = getItem(position);
 		ImageView profilePic = (ImageView) v.findViewById(R.id.profile_pic);
 		
-		if (twt != null) {
-			String imageUrl = twt.getProfilePic();
-			
-			//tag the image view with the corresponding image url that it should display
-			profilePic.setTag(imageUrl);	
-			
-			// Download images in the UI thread instead of using a background thread (AsyncTask)
-			ImageView imageView = (ImageView) v.findViewById(R.id.profile_pic);
-			new DownloadImageTask(imageView).execute(imageUrl);
-					
-//			imageView.setImageBitmap(bitmapImage);
+		String imageUrl = twt.getProfilePic();
+		
+		//tag the image view with the corresponding image url that it should display
+		profilePic.setTag(imageUrl);	
+		ImageView imageView = (ImageView) v.findViewById(R.id.profile_pic);
+		new DownloadImageTask(imageView).execute(imageUrl);
 
-			TextView userText = (TextView) v.findViewById(R.id.username);
-			if(userText != null){
-				userText.setText(twt.getUsername());
-			}
+		TextView userText = (TextView) v.findViewById(R.id.username);
+		if(userText != null){
+			userText.setText(twt.getUsername());
+		}
 
-			TextView timeText = (TextView) v.findViewById(R.id.timestamp);
-			if (timeText != null) {
-				timeText.setText(twt.getTimestamp());
-			}
-			
-			TextView messageText = (TextView) v.findViewById(R.id.tweet_content);
-			if(messageText != null) {
-				messageText.setText(twt.getTweetContent());
-			}
+		TextView timeText = (TextView) v.findViewById(R.id.timestamp);
+		if (timeText != null) {
+			timeText.setText(twt.getTimestamp());
+		}
+
+		TextView messageText = (TextView) v.findViewById(R.id.tweet_content);
+		if(messageText != null) {
+			messageText.setText(twt.getTweetContent());
 		}
 		
 		return v;

@@ -26,7 +26,7 @@ import android.widget.ListView;
 public class XLBootcampActivity extends ListActivity implements OnClickListener {
     /** Called when the activity is first created. */
 	
-	public static final String URI = "http://search.twitter.com/search.json?q=%23bieber";
+	public static final String URI = "http://search.twitter.com/search.json?q=%23bieber&rpp=100";
 	public static final int HTTP_REQUEST_TIMEOUT_MS = 30 * 1000;
 	private static final String TAG = "XLBootcamp";
 	

@@ -2,6 +2,7 @@ package ca.xtreme.xlbootcamp;
 
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -15,6 +16,7 @@ public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 	}
 	
 	protected Bitmap doInBackground(String... uri) {
+		Log.d("DownloadImageTask", "Downloading " + uri + " in doInBackground");
 		imageUrl = uri[0];
 		return BitmapDownloader.downloadBitmap(imageUrl);
 	}

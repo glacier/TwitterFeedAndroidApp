@@ -16,14 +16,14 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
 
 	public static final int HTTP_REQUEST_TIMEOUT_MS = 30 * 1000;
 	private static final String TAG = "XLBootcamp";
-	private Twitter twitter;
+	private TwitterUpdater twitter;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
-        twitter = new Twitter(this);
+        twitter = new TwitterUpdater(this);
         
         //find button and attach a listener to it
         Button button = (Button) findViewById(R.id.button);
@@ -35,27 +35,27 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
         
     }
 
-    private class DownloadTweetTask extends AsyncTask<Object, Integer, ArrayList<Tweet>> {
+//    private class DownloadTweetTask extends AsyncTask<Object, Integer, ArrayList<Tweet>> {
 
-
-		@Override
-    	protected ArrayList<Tweet> doInBackground(Object... obj){
-    		return twitter.getTimelineUpdates();
-    	}
-
-    	@Override
-    	protected void onPostExecute(ArrayList<Tweet> result) {
-    		ListView list = (ListView) findViewById(android.R.id.list);
-    		//TODO add list "push down" animation
-//    		SimpleCursorAdapter adapter = new SimpleCursorAdapter(XLBootcampActivity.this, R.layout.list_item, result, Twitter.FROM, Twitter.TO);
-    		TwitterArrayAdapter adapter = new TwitterArrayAdapter(XLBootcampActivity.this, R.layout.list_item, result);
-    		list.setAdapter(adapter);
-    	}
-    }
+//
+//		@Override
+//    	protected ArrayList<Tweet> doInBackground(Object... obj){
+//    		return twitter.getTimelineUpdates();
+//    	}
+//
+//    	@Override
+//    	protected void onPostExecute(ArrayList<Tweet> result) {
+//    		ListView list = (ListView) findViewById(android.R.id.list);
+//    		//TODO add list "push down" animation
+////    		SimpleCursorAdapter adapter = new SimpleCursorAdapter(XLBootcampActivity.this, R.layout.list_item, result, TwitterUpdater.FROM, TwitterUpdater.TO);
+//    		TwitterArrayAdapter adapter = new TwitterArrayAdapter(XLBootcampActivity.this, R.layout.list_item, result);
+//    		list.setAdapter(adapter);
+//    	}
+//    }
 
 	public void onClick(View v) {
 		Log.d(TAG, "Refreshed feed");
-		new DownloadTweetTask().execute();
+//		new DownloadTweetTask().execute();
 	}
 }
 

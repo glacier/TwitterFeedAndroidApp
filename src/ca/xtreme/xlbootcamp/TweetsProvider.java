@@ -27,7 +27,8 @@ public class TweetsProvider extends ContentProvider {
 	
     private static final String DATABASE_CREATE =
         "create table tweets (_id integer primary key autoincrement, "
-        + "username text not null, message text not null, timestamp text not null, photo_url text not null);";
+        + "userid text not null, username text not null, message text not null, "
+        + "timestamp text not null, photo_url text not null);";
 
     private static final String DATABASE_NAME = "tweets.db";
     private static final String DATABASE_TABLE = "tweets";
@@ -182,6 +183,7 @@ public class TweetsProvider extends ContentProvider {
 
         sNotesProjectionMap = new HashMap<String, String>();
         sNotesProjectionMap.put(Tweets._ID, Tweets._ID);
+        sNotesProjectionMap.put(Tweets.USER_ID, Tweets.USER_ID);
         sNotesProjectionMap.put(Tweets.USERNAME, Tweets.USERNAME);
         sNotesProjectionMap.put(Tweets.MESSAGE, Tweets.MESSAGE);
         sNotesProjectionMap.put(Tweets.PROFILE_IMAGE_URL, Tweets.PROFILE_IMAGE_URL);

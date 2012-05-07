@@ -16,25 +16,27 @@ public class TwitterSimpleCursorAdapter extends SimpleCursorAdapter {
 		// TODO Auto-generated constructor stub
 	}
 	
-//	public TwitterSimpleCursorAdapter(Context context, Cursor c) {
-//		super(context, R.layout.list_item, c, TwitterUpdater.FROM, TwitterUpdater.TO);
-//	}
-//	
-//	@Override
-//	public void bindView(View row, Context context, Cursor cursor) {
-//		super.bindView(row, context, cursor);
-//		
-//		ImageView imageView = (ImageView) row.findViewById(R.id.profile_pic);
-//		//TODO retrieve from cache
-//		Bitmap image = null;
-//		imageView.setImageBitmap(image);
-//	
-//		//bind rest of the views
-//		for(int i=0; i<TwitterUpdater.TO.length; i++) {
-//			TextView textView = (TextView) row.findViewById(TwitterUpdater.TO[i]);
-//			String text = cursor.getString(i);
-//			textView.setText(text);
-//		}
-//	}
+	public TwitterSimpleCursorAdapter(Context context, Cursor c) {
+		super(context, R.layout.list_item, c, TwitterUpdater.FROM, TwitterUpdater.TO);
+	}
+	
+	@Override
+	public void bindView(View row, Context context, Cursor cursor) {
+		super.bindView(row, context, cursor);
+		
+		ImageView imageView = (ImageView) row.findViewById(R.id.profile_pic);
+		//TODO retrieve from cache
+		String userId = cursor.getString(cursor.getColumnIndex("userid"));
+		Bitmap image = TwitterUpdater.getProfileImage(cursor.getString(cursor.getColumnIndex("photo_url")), 
+													  userId);
+		imageView.setImageBitmap(image);
+	
+		//bind rest of the views
+		for(int i=0; i<TwitterUpdater.TO.length-1; i++) {
+			TextView textView = (TextView) row.findViewById(TwitterUpdater.TO[i]);
+			String text = cursor.getString(i);
+			textView.setText(text);
+		}
+	}
 }
 

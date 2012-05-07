@@ -1,8 +1,7 @@
 package ca.xtreme.xlbootcamp;
 
-import java.util.ArrayList;
-
 import android.app.ListActivity;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,27 +34,29 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
         
     }
 
-//    private class DownloadTweetTask extends AsyncTask<Object, Integer, ArrayList<Tweet>> {
+    private class DownloadTweetTask extends AsyncTask<Object, Integer, Cursor> {
+		@Override
+    	protected Cursor doInBackground(Object... obj){
+    		return twitter.getTimelineUpdates();
+    	}
 
-//
-//		@Override
-//    	protected ArrayList<Tweet> doInBackground(Object... obj){
-//    		return twitter.getTimelineUpdates();
-//    	}
-//
-//    	@Override
-//    	protected void onPostExecute(ArrayList<Tweet> result) {
-//    		ListView list = (ListView) findViewById(android.R.id.list);
-//    		//TODO add list "push down" animation
-////    		SimpleCursorAdapter adapter = new SimpleCursorAdapter(XLBootcampActivity.this, R.layout.list_item, result, TwitterUpdater.FROM, TwitterUpdater.TO);
-//    		TwitterArrayAdapter adapter = new TwitterArrayAdapter(XLBootcampActivity.this, R.layout.list_item, result);
-//    		list.setAdapter(adapter);
-//    	}
-//    }
+    	@Override
+    	protected void onPostExecute(Cursor result) {
+    		ListView list = (ListView) findViewById(android.R.id.list);
+    	       
+    		//TODO add list "push down" animation
+    		TwitterSimpleCursorAdapter adapter = 
+    				new TwitterSimpleCursorAdapter(XLBootcampActivity.this, R.layout.list_item, result, 
+    												TwitterUpdater.FROM, 
+    												TwitterUpdater.TO
+    											   );
+    		list.setAdapter(adapter);
+    	}
+    }
 
 	public void onClick(View v) {
-		Log.d(TAG, "Refreshed feed");
-//		new DownloadTweetTask().execute();
+		Log.d(TAG, "Updating Twitter timeline ...");
+		new DownloadTweetTask().execute();
 	}
 }
 

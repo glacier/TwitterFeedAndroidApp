@@ -13,7 +13,7 @@ import android.provider.BaseColumns;
  * Convenience definitions for NotePadProvider
  */
 public final class Twitter {
-    public static final String AUTHORITY = "mycontentprovider.tweetsprovider";
+    public static final String AUTHORITY = "ca.xtreme.xlbootcamp.tweetsprovider";
 
     // This class cannot be instantiated
     private Twitter() {}
@@ -24,6 +24,8 @@ public final class Twitter {
     public static final class Tweets implements BaseColumns {
         // This class cannot be instantiated
         private Tweets() {}
+        
+//        String[] from = new String[] { NotesDbAdapter.KEY_TITLE };
 
         /**
          * The content:// style URL for this table
@@ -79,5 +81,7 @@ public final class Twitter {
          * Used to store the values of a row in the content provider
          */
 		public static final String STATUS = "status";
+
+		public static final String USER_ID = "userid";
     }
 }

@@ -37,7 +37,9 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
     private class DownloadTweetTask extends AsyncTask<Object, Integer, Cursor> {
 		@Override
     	protected Cursor doInBackground(Object... obj){
-    		return twitter.getTimelineUpdates();
+			Cursor c = twitter.getTimelineUpdates();
+			startManagingCursor(c);
+			return c;
     	}
 
     	@Override

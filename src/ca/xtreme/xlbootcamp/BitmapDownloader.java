@@ -32,7 +32,6 @@ public class BitmapDownloader {
 			final HttpEntity entity = response.getEntity();
 
 			if (entity != null) {
-				// download image and set it into the image view
 				InputStream inputStream = null;
 				try {
 					inputStream = entity.getContent();

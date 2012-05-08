@@ -84,7 +84,8 @@ public class TwitterUpdater {
 		Log.d(TAG, "search: " + mSearchURI);
 		
 		final HttpGet get = new HttpGet(mSearchURI);
-
+		Cursor cursor = null;
+		
 		try {
 			response = httpClient.execute(get);
 
@@ -126,10 +127,11 @@ public class TwitterUpdater {
 					selectionArgs[1] = timestamp;
 					
 					// check if tweet is already in the database
-					Cursor cursor = mResolver.query(Twitter.Tweets.CONTENT_URI, null, selection, selectionArgs, null);
+					cursor = mResolver.query(Twitter.Tweets.CONTENT_URI, null, selection, selectionArgs, null);
+					
 					String cachedFilename = mCacheDir.getPath() + "/" + userId + ".jpg";
 					
-					downloadImage(pictureUrl, cachedFilename);
+					boolean downloaded = downloadImage(pictureUrl, cachedFilename);
 					
 					if(cursor.getCount() == 0) {
 						Log.d(TAG, "Storing tweet from " + username + " posted at " + timestamp + " into database");
@@ -146,6 +148,7 @@ public class TwitterUpdater {
 						mResolver.insert(Twitter.Tweets.CONTENT_URI, tweetValue);
 						Log.d("TwitterUpdater", "Stored tweet from " + userId + ": " + username + " posted at " + timestamp);
 					}
+					cursor.close();
 				}
 			} catch (JSONException e) {
 				Log.e(TAG, "JSONException problem creating JSONObject from tokener:", e);
@@ -157,21 +160,32 @@ public class TwitterUpdater {
 			if(httpClient != null) {
 				httpClient.close();
 			}
+			
+			if(cursor != null) {
+				cursor.close();
+			}
 		}
 	}
 	
-	private static void downloadImage(String imageUrl, String diskFilename) {
+	private static boolean downloadImage(String imageUrl, String diskFilename) {
 		File file = new File(diskFilename);
 		if(!file.exists()) {
 			Log.d("TwitterUpdater", "Image not in cache. Downloading " + imageUrl);
-			forceDownloadImage(imageUrl, file);
+			return forceDownloadImage(imageUrl, file);
 		} else {
 			Log.d("TwitterUpdater", "Image is cached at " + diskFilename);
 		}
+		return false;
 	}
 	
-	private static void forceDownloadImage(String imageUrl, File file) {
+	private static boolean forceDownloadImage(String imageUrl, File file) {
 		Bitmap image = BitmapDownloader.downloadBitmap(imageUrl);
+		
+		if(image == null) {
+			Log.d("TwitterUpdater", "image was not downloaded");
+			return false;
+		}
+		
 		try {
 			Log.d("ContentProviderTestActivity", "Wrote image file to device temp storage");
 //			FileOutputStream fout = mCtx.openFileOutput(diskFilename, 0);
@@ -185,5 +199,6 @@ public class TwitterUpdater {
 		} catch (IOException e) {
 			Log.d("TwitterUpdater", "Could not compress bitmap");
 		}
+		return true;
 	}
 }

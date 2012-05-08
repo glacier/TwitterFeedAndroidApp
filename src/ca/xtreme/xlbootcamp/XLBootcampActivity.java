@@ -30,8 +30,7 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
         
         //populate with feeds when app is launched
         //TODO Add a timer to run this task every 30 seconds to load tweet
-//        new GetFromTwitterTask().execute(URI);
-        
+        new DownloadTweetTask().execute();
     }
 
     private class DownloadTweetTask extends AsyncTask<Object, Integer, Cursor> {

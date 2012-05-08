@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -43,10 +45,10 @@ public class TwitterUpdater {
 //	HashMap<String,SoftReference<Bitmap>> imageCache =
 //	        new HashMap<String,SoftReference<Bitmap>>();
 	
-	private String mSearchURI;
 	private ContentResolver mResolver;
 	private static Context mCtx;
 	private static File mCacheDir;
+	private String mSearchURI = "http://search.twitter.com/search.json?q=";
 	
 	public TwitterUpdater(Context ctx) {
 		//empty default constructor
@@ -56,11 +58,11 @@ public class TwitterUpdater {
 		mSearchURI = "http://search.twitter.com/search.json?q=%23bieber";
 	}
 	
-	public TwitterUpdater(Context ctx, String uri) {
+	public TwitterUpdater(Context ctx, String searchString) throws UnsupportedEncodingException {
 		mCtx = ctx;
 		mResolver = ctx.getContentResolver();
 		mCacheDir = mCtx.getCacheDir();
-		mSearchURI = uri;
+		mSearchURI = mSearchURI + URLEncoder.encode(searchString, "UTF-16");
 	}
 	
 	public Cursor getTimelineUpdates() {

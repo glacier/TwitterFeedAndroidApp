@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -41,6 +40,8 @@ public class TwitterUpdater {
 
 	// Defines a list of View IDs that will receive the Cursor columns for each row
 	public static final int[] TO = {R.id.username, R.id.tweet_content, R.id.timestamp, R.id.profile_pic };
+
+	public static final String DEFAULT_URL = "http://search.twitter.com/search.json?q=";
 	
 //	HashMap<String,SoftReference<Bitmap>> imageCache =
 //	        new HashMap<String,SoftReference<Bitmap>>();
@@ -48,21 +49,21 @@ public class TwitterUpdater {
 	private ContentResolver mResolver;
 	private static Context mCtx;
 	private static File mCacheDir;
-	private String mSearchURI = "http://search.twitter.com/search.json?q=";
+	private String mSearchURI;
 	
 	public TwitterUpdater(Context ctx) {
 		//empty default constructor
 		mCtx = ctx;
 		mResolver = ctx.getContentResolver();
 		mCacheDir = mCtx.getCacheDir();
-		mSearchURI = "http://search.twitter.com/search.json?q=%23bieber";
+		mSearchURI = DEFAULT_URL + "#bieber";
 	}
 	
 	public TwitterUpdater(Context ctx, String searchString) throws UnsupportedEncodingException {
 		mCtx = ctx;
 		mResolver = ctx.getContentResolver();
 		mCacheDir = mCtx.getCacheDir();
-		mSearchURI = mSearchURI + URLEncoder.encode(searchString, "UTF-16");
+		mSearchURI = DEFAULT_URL + searchString;
 	}
 	
 	public Cursor getTimelineUpdates() {
@@ -133,7 +134,7 @@ public class TwitterUpdater {
 					
 					String cachedFilename = mCacheDir.getPath() + "/" + userId + ".jpg";
 					
-					boolean downloaded = downloadImage(pictureUrl, cachedFilename);
+					downloadImage(pictureUrl, cachedFilename);
 					
 					if(cursor.getCount() == 0) {
 						Log.d(TAG, "Storing tweet from " + username + " posted at " + timestamp + " into database");

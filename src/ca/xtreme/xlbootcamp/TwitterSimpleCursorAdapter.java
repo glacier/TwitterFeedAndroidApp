@@ -30,13 +30,20 @@ public class TwitterSimpleCursorAdapter extends SimpleCursorAdapter {
 		Bitmap image = TwitterUpdater.getProfileImage(cursor.getString(cursor.getColumnIndex("photo_url")), 
 													  userId);
 		imageView.setImageBitmap(image);
+		
+		TextView textView = (TextView) row.findViewById(R.id.username);
+		setText(cursor, textView, "username");
+		
+		textView = (TextView) row.findViewById(R.id.tweet_content);
+		setText(cursor, textView, "message");
+		
+		textView = (TextView) row.findViewById(R.id.timestamp);
+		setText(cursor, textView, "timestamp");
+	}
 	
-		//bind rest of the views
-		for(int i=0; i<TwitterUpdater.TO.length-1; i++) {
-			TextView textView = (TextView) row.findViewById(TwitterUpdater.TO[i]);
-			String text = cursor.getString(i);
-			textView.setText(text);
-		}
+	private void setText(Cursor cursor, TextView textView, String column ) {
+		String text = cursor.getString(cursor.getColumnIndex(column));
+		textView.setText(text);
 	}
 }
 

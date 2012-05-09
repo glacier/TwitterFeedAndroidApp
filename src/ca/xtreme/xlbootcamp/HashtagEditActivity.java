@@ -4,55 +4,43 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
-public class HashtagEditActivity extends Activity {
-
-	private Object mOriginalContent;
+public class HashtagEditActivity extends Activity implements OnClickListener {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		
 		final Intent intent = getIntent();
 
 		// Do some setup based on the action being performed.
 
 		final String action = intent.getAction();
-		Log.d("Edit", "Received intent action" + action);
+		Log.d("Edit", "Received intent action " + action);
 		
-//		if (Intent.ACTION_EDIT.equals(action)) {
-//			// Requested to edit: set that state, and the data being edited.
-//			mState = STATE_EDIT;
-//			mUri = intent.getData();
-//		} else {
-//			// Whoops, unknown action!  Bail.
-//			Log.e(TAG, "Unknown action, exiting");
-//			finish();
-//			return;
-//		}
-//
-//		// Set the layout for this activity.  You can find it in res/layout/note_editor.xml
+		// Set the layout for this activity.  You can find it in res/layout/note_editor.xml
 		setContentView(R.layout.hashtag_edit);
-//
-//		// The text view for our note, identified by its ID in the XML file.
-//		mText = (EditText) findViewById(R.id.note);
-//
-//		// Get the note!
-//		mCursor = managedQuery(mUri, PROJECTION, null, null, null);
-//
-//		// If an instance of this activity had previously stopped, we can
-//		// get the original text it started with.
-//		if (savedInstanceState != null) {
-//			mOriginalContent = savedInstanceState.getString(ORIGINAL_CONTENT);
-//		}
+		
+		Button button = (Button) findViewById(R.id.button1);
+        button.setOnClickListener(this);
+        
+        
 	}
 	
-	protected void onStop() {
-		Intent intent = new Intent(Intent.ACTION_MAIN);
+	public void onClick(View v) {
+		Intent intent = new Intent();
 		TextView textView = (TextView) findViewById(R.id.editText1);
-		intent.putExtra("hashtag", textView.getText());
+		intent.putExtra("ca.xtreme.xlbootcamp.Hashtag", textView.getText().toString());
+		Log.d("HashtagActivity", "sending back hashtag " + intent.getStringExtra("ca.xtreme.xlbootcamp.Hashtag"));
+		
 		setResult(0, intent);
-		super.onStop();
+		
+		finish();
 	}
 }

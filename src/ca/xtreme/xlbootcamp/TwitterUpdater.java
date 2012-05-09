@@ -64,6 +64,8 @@ public class TwitterUpdater {
 		mResolver = ctx.getContentResolver();
 		mCacheDir = mCtx.getCacheDir();
 		mSearchURI = DEFAULT_URL + searchString;
+		
+		Log.d("TwitterUpdater", "Pulling data from " + mSearchURI);
 	}
 	
 	public Cursor getTimelineUpdates() {

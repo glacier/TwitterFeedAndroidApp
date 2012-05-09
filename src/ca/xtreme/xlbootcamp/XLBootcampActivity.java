@@ -16,6 +16,10 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 
+// TODO add hashtag column to database.  Need to fetch rows for a given hashtag (right now it displays everything)
+// TODO refactor image downloads out of UI thread (TwitterSimpleCursorAdapter.java)
+// FIXME better handle image caching ... clear and reset cache. (Right now the phone handles cache clearing)
+
 public class XLBootcampActivity extends ListActivity implements OnClickListener {
     /** Called when the activity is first created. */
 
@@ -89,29 +93,32 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
     
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	if (requestCode == 0) {		
-    		if(resultCode == 0) {
-    			startActivity(new Intent(data));
-    		}
-    	}
-    }
-    
-    public void onResume(Intent data) {
-    	Intent intent = getIntent();
-        String searchString = intent.getStringExtra("hashtag");
+    	Log.d(TAG, "onActivityResult: parsing intent data");
+    	
+    	Bundle extras = data.getExtras();
+        String searchString = extras.getString("ca.xtreme.xlbootcamp.Hashtag");
+        
+        Log.d(TAG, "onActivityResult: searching twitter for " + searchString);
+        
         if (searchString == null) {
-        	searchString = "#bieber";
+        	searchString = "bieber";
         }
         
         try {
-			twitter = new TwitterUpdater(this, searchString);
+			twitter = new TwitterUpdater(this, "#" + searchString);
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        Log.d(TAG, "hash tag search string " + searchString);
-        new DownloadTweetTask().execute();
         
+        Log.d(TAG, "hash tag search string " + searchString);
+        
+        new DownloadTweetTask().execute();
+    	
+    }
+    
+    public void onResume(Intent data) {
+    	Log.d(TAG, "onResume");
     }
 }
 

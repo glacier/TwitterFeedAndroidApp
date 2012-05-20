@@ -22,37 +22,39 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
+// FIXME Improve the image caching.  Implement a cache clearing mechanism instead of
+// relying on the phone's cache clearing policy.
 public class TwitterUpdater {
     private static final String TAG = "TwitterUpdater";
     
-    // Defines a list of columns to retrieve from the Cursor and load into an output row
+    // Defines a list of columns to retrieve from the Cursor
 	public static final String[] FROM =
 		{
 			Twitter.Tweets.USER_ID,
-			Twitter.Tweets.USERNAME,   // Contract class constant containing the word column name
-			Twitter.Tweets.MESSAGE, 	  // Contract class constant containing the locale column name
+			Twitter.Tweets.USERNAME,   
+			Twitter.Tweets.MESSAGE,
 			Twitter.Tweets.CREATED_DATE,
-			Twitter.Tweets.PROFILE_IMAGE_URL
+			Twitter.Tweets.PROFILE_IMAGE_URL,
+			Twitter.Tweets.HASHTAG
 		};
 
-	// Defines a list of View IDs that will receive the Cursor columns for each row
+	// Defines a list of View IDs that corresponds to Cursor columns
 	public static final int[] TO = {R.id.username, R.id.tweet_content, R.id.timestamp, R.id.profile_pic };
 
 	public static final String DEFAULT_URL = "http://search.twitter.com/search.json?q=";
-	
-//	HashMap<String,SoftReference<Bitmap>> imageCache =
-//	        new HashMap<String,SoftReference<Bitmap>>();
 	
 	private ContentResolver mResolver;
 	private static Context mCtx;
 	private static File mCacheDir;
 	private String mSearchURI;
+
+	private String mSearchString;
 	
 	public TwitterUpdater(Context ctx) {
-		//empty default constructor
 		mCtx = ctx;
 		mResolver = ctx.getContentResolver();
 		mCacheDir = mCtx.getCacheDir();
@@ -63,37 +65,32 @@ public class TwitterUpdater {
 		mCtx = ctx;
 		mResolver = ctx.getContentResolver();
 		mCacheDir = mCtx.getCacheDir();
-		mSearchURI = DEFAULT_URL + searchString;
-		
-		Log.d("TwitterUpdater", "Pulling data from " + mSearchURI);
+		mSearchString = searchString;
+		mSearchURI = DEFAULT_URL + "#" + searchString;
 	}
 	
 	public Cursor getTimelineUpdates() {
 		downloadTweets();
-		return mResolver.query(Twitter.Tweets.CONTENT_URI, null, null, null, null);
+		// Retrieve the tweets with hashtag mSearchString from the database
+		Uri uri = Uri.withAppendedPath(Twitter.Tweets.CONTENT_URI, mSearchString);
+		return mResolver.query(uri, null, null, null, null);
 	}
 	
 	public static Bitmap getProfileImage(String imageUrl, String userId) {
 		String cachedImageAbsPath = mCacheDir.getAbsolutePath() + "/" + userId + ".jpg";
-		Log.d("TwitterUpdate", "cached profile image path " + cachedImageAbsPath);
 		downloadImage(imageUrl, cachedImageAbsPath);
-		
 		return BitmapFactory.decodeFile(cachedImageAbsPath);
 	}
 	
-	// Gets and parses the latest tweets given a uri TwitterUpdater search API
+	// Gets and parses the latest tweets from twitter
 	private void downloadTweets() {
 		AndroidHttpClient httpClient = AndroidHttpClient.newInstance("Android");
 		final HttpResponse response;
-		
-		Log.d(TAG, "search: " + mSearchURI);
-		
 		final HttpGet get = new HttpGet(mSearchURI);
 		Cursor cursor = null;
 		
 		try {
 			response = httpClient.execute(get);
-
 			final int statusCode = response.getStatusLine().getStatusCode();
 
 			if (statusCode != HttpStatus.SC_OK) {
@@ -109,8 +106,6 @@ public class TwitterUpdater {
 			for (String line = null; (line = reader.readLine()) != null;) {
 				builder.append(line).append("\n");
 			}
-			
-			Log.d(TAG, builder.toString());
 			
 			// parse and extract JSON data
 			JSONTokener tokener = new JSONTokener(builder.toString());
@@ -133,9 +128,7 @@ public class TwitterUpdater {
 					
 					// check if tweet is already in the database
 					cursor = mResolver.query(Twitter.Tweets.CONTENT_URI, null, selection, selectionArgs, null);
-					
 					String cachedFilename = mCacheDir.getPath() + "/" + userId + ".jpg";
-					
 					downloadImage(pictureUrl, cachedFilename);
 					
 					if(cursor.getCount() == 0) {
@@ -148,10 +141,12 @@ public class TwitterUpdater {
 						tweetValue.put(Twitter.Tweets.MESSAGE, message);
 						tweetValue.put(Twitter.Tweets.CREATED_DATE, timestamp);
 						tweetValue.put(Twitter.Tweets.PROFILE_IMAGE_URL, pictureUrl);
+						tweetValue.put(Twitter.Tweets.HASHTAG, mSearchString);
 
 						// creates a new row with uri content://#{Twitter.Tweets.CONTENT_URI}/tweets/<id_value>
 						mResolver.insert(Twitter.Tweets.CONTENT_URI, tweetValue);
-						Log.d("TwitterUpdater", "Stored tweet from " + userId + ": " + username + " posted at " + timestamp);
+						Log.d("TwitterUpdater", "Stored tweet with hashtag " + mSearchString + " from " + userId + ": " 
+								+ username + " posted at " + timestamp);
 					}
 					cursor.close();
 				}
@@ -175,10 +170,7 @@ public class TwitterUpdater {
 	private static boolean downloadImage(String imageUrl, String diskFilename) {
 		File file = new File(diskFilename);
 		if(!file.exists()) {
-			Log.d("TwitterUpdater", "Image not in cache. Downloading " + imageUrl);
 			return forceDownloadImage(imageUrl, file);
-		} else {
-			Log.d("TwitterUpdater", "Image is cached at " + diskFilename);
 		}
 		return false;
 	}
@@ -187,18 +179,14 @@ public class TwitterUpdater {
 		Bitmap image = BitmapDownloader.downloadBitmap(imageUrl);
 		
 		if(image == null) {
-			Log.d("TwitterUpdater", "image was not downloaded");
 			return false;
 		}
 		
 		try {
-			Log.d("ContentProviderTestActivity", "Wrote image file to device temp storage");
-//			FileOutputStream fout = mCtx.openFileOutput(diskFilename, 0);
 			FileOutputStream fout = new FileOutputStream(file);
 			image.compress(Bitmap.CompressFormat.JPEG, 100, fout);
 			fout.flush();
 			fout.close();
-			Log.d("TwitterUpdater", "Downloaded user profile image to " + file.getAbsoluteFile());
 		} catch (FileNotFoundException e) {
 			Log.d("TwitterUpdater", "Could not open " + file.getAbsoluteFile());
 		} catch (IOException e) {

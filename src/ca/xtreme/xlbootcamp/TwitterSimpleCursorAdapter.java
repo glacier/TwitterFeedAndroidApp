@@ -13,7 +13,6 @@ public class TwitterSimpleCursorAdapter extends SimpleCursorAdapter {
 	public TwitterSimpleCursorAdapter(Context context, int layout, Cursor c,
 			String[] from, int[] to) {
 		super(context, layout, c, from, to);
-		// TODO Auto-generated constructor stub
 	}
 	
 	public TwitterSimpleCursorAdapter(Context context, Cursor c) {
@@ -25,8 +24,8 @@ public class TwitterSimpleCursorAdapter extends SimpleCursorAdapter {
 		super.bindView(row, context, cursor);
 		
 		ImageView imageView = (ImageView) row.findViewById(R.id.profile_pic);
-		//TODO retrieve from cache
 		String userId = cursor.getString(cursor.getColumnIndex("userid"));
+		// TODO refactor image downloads out of UI thread (TwitterSimpleCursorAdapter.java)
 		Bitmap image = TwitterUpdater.getProfileImage(cursor.getString(cursor.getColumnIndex("photo_url")), 
 													  userId);
 		imageView.setImageBitmap(image);

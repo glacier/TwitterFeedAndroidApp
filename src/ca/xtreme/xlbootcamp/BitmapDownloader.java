@@ -15,7 +15,6 @@ import android.util.Log;
 
 public class BitmapDownloader {
 	// Taken from http://android-developers.blogspot.ca/2010/07/multithreading-for-performance.html
-	// TODO put downloading into an async task
 	public static Bitmap downloadBitmap(String uri) {
 		final AndroidHttpClient client = AndroidHttpClient.newInstance("Android");
 		final HttpGet getRequest = new HttpGet(uri);

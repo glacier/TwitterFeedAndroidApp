@@ -1,74 +1,53 @@
-/*
- * 
- * Adapted from NotePad.java from the NotePad sample code
- * 
- * */
-
 package ca.xtreme.xlbootcamp;
 
 import android.net.Uri;
 import android.provider.BaseColumns;
 
 /**
- * Convenience definitions for NotePadProvider
+ * Convenience definitions for TweetsProvider
  */
 public final class Twitter {
     public static final String AUTHORITY = "ca.xtreme.xlbootcamp.tweetsprovider";
 
-    // This class cannot be instantiated
     private Twitter() {}
     
     /**
-     * Notes table
+     * Tweets table
      */
     public static final class Tweets implements BaseColumns {
-        // This class cannot be instantiated
         private Tweets() {}
         
-//        String[] from = new String[] { NotesDbAdapter.KEY_TITLE };
-
         /**
          * The content:// style URL for this table
          */
         public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/tweets");
 
         /**
-         * The MIME type of {@link #CONTENT_URI} providing a directory of notes.
+         * The MIME type of {@link #CONTENT_URI} not yet defined.
          */
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.google.note";
 
-        /**
-         * The MIME type of a {@link #CONTENT_URI} sub-directory of a single note.
-         */
-        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.google.note";
-
-        /**
-         * The default sort order for this table
-         */
         public static final String DEFAULT_SORT_ORDER = "timestamp DESC";
 
         /**
-         * The title of the note
+         * The status of the tweet
          * <P>Type: TEXT</P>
          */
         public static final String MESSAGE = "message";
 
         /**
-         * The note itself
+         * name of the twitter user
          * <P>Type: TEXT</P>
          */
         public static final String USERNAME = "username";
 
         /**
-         * The timestamp for when the note was created
-         * <P>Type: INTEGER (long from System.curentTimeMillis())</P>
+         * The timestamp for when the tweet was posted
          */
         public static final String CREATED_DATE = "timestamp";
         
         /**
          * The user profile image url 
-         */
-        
+         */        
         public static final String PROFILE_IMAGE_URL = "photo_url";
 
         /**
@@ -83,5 +62,7 @@ public final class Twitter {
 		public static final String STATUS = "status";
 
 		public static final String USER_ID = "userid";
+		
+		public static final String HASHTAG = "hashtag";
     }
 }

@@ -28,21 +28,19 @@ public class TweetsProvider extends ContentProvider {
     private static final String DATABASE_CREATE =
         "create table tweets (_id integer primary key autoincrement, "
         + "userid text not null, username text not null, message text not null, "
-        + "timestamp text not null, photo_url text not null);";
+        + "timestamp text not null, photo_url text not null, hashtag text not null);";
 
     private static final String DATABASE_NAME = "tweets.db";
     private static final String DATABASE_TABLE = "tweets";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 4;
 
-    private static HashMap<String, String> sNotesProjectionMap;
-//    private static HashMap<String, String> sLiveFolderProjectionMap;
+    private static HashMap<String, String> sTweetsProjectionMap;
 
     private static final int TWEETS = 1;
     private static final int TWEET_ID = 2;
-    private static final int LIVE_FOLDER_NOTES = 3;
+    private static final int TWEET_HASHTAG = 3;
 
     private static final UriMatcher sUriMatcher;
-    
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -81,18 +79,21 @@ public class TweetsProvider extends ContentProvider {
 
 		switch (sUriMatcher.match(uri)) {
         case TWEETS:
-            qb.setProjectionMap(sNotesProjectionMap);
+            qb.setProjectionMap(sTweetsProjectionMap);
             break;
 
         case TWEET_ID:
-            qb.setProjectionMap(sNotesProjectionMap);
+            qb.setProjectionMap(sTweetsProjectionMap);
             qb.appendWhere(Tweets._ID + "=" + uri.getPathSegments().get(1));
             break;
+        
+        case TWEET_HASHTAG:
+        	qb.setProjectionMap(sTweetsProjectionMap);
+        	qb.appendWhere(Tweets.HASHTAG + "=" + "\"" + uri.getPathSegments().get(1) + "\"");
+        	break;
 
         default:
             throw new IllegalArgumentException("Unknown URI " + uri);
-        
-        //add a case here to handle getting Tweets with photos
         }
 
         // If no sort order is specified use the default
@@ -152,8 +153,6 @@ public class TweetsProvider extends ContentProvider {
 		throw new SQLException("Failed to insert row into " + uri);
 	}
 
-	/* Leave these methods for now ... */
-	
 	@Override
 	public int update(Uri uri, ContentValues values, String selection,
 			String[] selectionArgs) {
@@ -177,14 +176,15 @@ public class TweetsProvider extends ContentProvider {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         sUriMatcher.addURI(Twitter.AUTHORITY, "tweets", TWEETS);
         sUriMatcher.addURI(Twitter.AUTHORITY, "tweets/#", TWEET_ID);
-        sUriMatcher.addURI(Twitter.AUTHORITY, "live_folders/notes", LIVE_FOLDER_NOTES);
+        sUriMatcher.addURI(Twitter.AUTHORITY, "tweets/*", TWEET_HASHTAG);
 
-        sNotesProjectionMap = new HashMap<String, String>();
-        sNotesProjectionMap.put(Tweets._ID, Tweets._ID);
-        sNotesProjectionMap.put(Tweets.USER_ID, Tweets.USER_ID);
-        sNotesProjectionMap.put(Tweets.USERNAME, Tweets.USERNAME);
-        sNotesProjectionMap.put(Tweets.MESSAGE, Tweets.MESSAGE);
-        sNotesProjectionMap.put(Tweets.PROFILE_IMAGE_URL, Tweets.PROFILE_IMAGE_URL);
-        sNotesProjectionMap.put(Tweets.CREATED_DATE, Tweets.CREATED_DATE);
+        sTweetsProjectionMap = new HashMap<String, String>();
+        sTweetsProjectionMap.put(Tweets._ID, Tweets._ID);
+        sTweetsProjectionMap.put(Tweets.USER_ID, Tweets.USER_ID);
+        sTweetsProjectionMap.put(Tweets.USERNAME, Tweets.USERNAME);
+        sTweetsProjectionMap.put(Tweets.MESSAGE, Tweets.MESSAGE);
+        sTweetsProjectionMap.put(Tweets.PROFILE_IMAGE_URL, Tweets.PROFILE_IMAGE_URL);
+        sTweetsProjectionMap.put(Tweets.CREATED_DATE, Tweets.CREATED_DATE);
+        sTweetsProjectionMap.put(Tweets.HASHTAG, Tweets.HASHTAG);
     }
 }

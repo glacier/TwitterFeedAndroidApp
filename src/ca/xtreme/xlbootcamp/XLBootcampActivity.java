@@ -1,7 +1,6 @@
 package ca.xtreme.xlbootcamp;
 
 import java.io.UnsupportedEncodingException;
-
 import android.app.ListActivity;
 import android.content.Intent;
 import android.database.Cursor;
@@ -16,9 +15,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ListView;
 
-// TODO add hashtag column to database.  Need to fetch rows for a given hashtag (right now it displays everything)
-// TODO refactor image downloads out of UI thread (TwitterSimpleCursorAdapter.java)
-// FIXME better handle image caching ... clear and reset cache. (Right now the phone handles cache clearing)
 
 public class XLBootcampActivity extends ListActivity implements OnClickListener {
     /** Called when the activity is first created. */
@@ -37,15 +33,13 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
         button.setOnClickListener(this);
         
         try {
-			twitter = new TwitterUpdater(this, "#bieber");
+			twitter = new TwitterUpdater(this, "bieber");
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         
-        //populate with feeds when app is launched
         //TODO Add a timer to run this task every 30 seconds to load tweet
-//        new DownloadTweetTask().execute();
+        new DownloadTweetTask().execute();
     }
 
     private class DownloadTweetTask extends AsyncTask<Object, Integer, Cursor> {
@@ -84,37 +78,29 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
 	
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	
     	// Launch activity to insert a new item
     	startActivityForResult(new Intent(Intent.ACTION_EDIT), 1);
-        
         return super.onOptionsItemSelected(item);
     }
     
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	Log.d(TAG, "onActivityResult: parsing intent data");
-    	
     	Bundle extras = data.getExtras();
         String searchString = extras.getString("ca.xtreme.xlbootcamp.Hashtag");
-        
-        Log.d(TAG, "onActivityResult: searching twitter for " + searchString);
         
         if (searchString == null) {
         	searchString = "bieber";
         }
         
         try {
-			twitter = new TwitterUpdater(this, "#" + searchString);
+			twitter = new TwitterUpdater(this, searchString);
 		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         
-        Log.d(TAG, "hash tag search string " + searchString);
+        Log.d(TAG, "Searching twitter with hashtag " + searchString);
         
         new DownloadTweetTask().execute();
-    	
     }
     
     public void onResume(Intent data) {

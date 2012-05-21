@@ -10,9 +10,10 @@
 		android:text="@string/refresh" />
 	<ListView
 		android:id="@android:id/list"
+		android:persistentDrawingCache="animation|scrolling"
 		android:layout_width="wrap_content"
-		android:layout_height="wrap_content" >
-	</ListView>
+		android:layout_height="wrap_content"
+		android:layoutAnimation="@anim/list_layout_controller" />
 	<TextView
 		android:id="@android:id/empty"
 		android:layout_width="match_parent"

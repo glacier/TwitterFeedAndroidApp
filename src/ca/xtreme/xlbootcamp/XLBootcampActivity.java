@@ -1,11 +1,16 @@
 package ca.xtreme.xlbootcamp;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Timer;
+import java.util.TimerTask;
+
+
 import android.app.ListActivity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,6 +27,7 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
 	public static final int HTTP_REQUEST_TIMEOUT_MS = 30 * 1000;
 	private static final String TAG = "XLBootcamp";
 	private TwitterUpdater twitter;
+	private Handler mHandler = new Handler();
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -37,11 +43,24 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-        
-        //TODO Add a timer to run this task every 30 seconds to load tweet
-        new DownloadTweetTask().execute();
+
+        //Add a timer to run this task every 30 seconds to load tweet
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TweetTimerTask(), 0, 30000);
     }
 
+    private class TweetTimerTask extends TimerTask {
+		@Override
+		public void run() {
+			mHandler.post(new Runnable() {
+		    	public void run() {
+		    		Log.d(TAG, "Refreshing tweets ... Next refresh in 30 secs.");
+		    		new DownloadTweetTask().execute();	
+		    	}
+			});
+		}
+    }
+    
     private class DownloadTweetTask extends AsyncTask<Object, Integer, Cursor> {
 		@Override
     	protected Cursor doInBackground(Object... obj){
@@ -61,6 +80,7 @@ public class XLBootcampActivity extends ListActivity implements OnClickListener 
     												TwitterUpdater.TO
     											   );
     		list.setAdapter(adapter);
+    		list.startLayoutAnimation();
     	}
     }
 

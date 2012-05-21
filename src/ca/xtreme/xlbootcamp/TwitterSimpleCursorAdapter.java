@@ -25,9 +25,8 @@ public class TwitterSimpleCursorAdapter extends SimpleCursorAdapter {
 		
 		ImageView imageView = (ImageView) row.findViewById(R.id.profile_pic);
 		String userId = cursor.getString(cursor.getColumnIndex("userid"));
-		// TODO refactor image downloads out of UI thread (TwitterSimpleCursorAdapter.java)
-		Bitmap image = TwitterUpdater.getProfileImage(cursor.getString(cursor.getColumnIndex("photo_url")), 
-													  userId);
+		
+		Bitmap image = TwitterUpdater.getProfileImage(userId);
 		imageView.setImageBitmap(image);
 		
 		TextView textView = (TextView) row.findViewById(R.id.username);

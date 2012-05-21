@@ -16,6 +16,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import ca.xtreme.xlbootcamp.Twitter.Tweets;
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -71,14 +73,31 @@ public class TwitterUpdater {
 	
 	public Cursor getTimelineUpdates() {
 		downloadTweets();
+		
 		// Retrieve the tweets with hashtag mSearchString from the database
 		Uri uri = Uri.withAppendedPath(Twitter.Tweets.CONTENT_URI, mSearchString);
-		return mResolver.query(uri, null, null, null, null);
+		
+		// For each tweet retrieve from the database, download the corresponding
+		// profile image if its not already in the disk cache
+		// This ensures that the profile image is in the cache when it is being 
+		// displayed
+		Cursor cursor = mResolver.query(uri, null, null, null, null);
+		cursor.moveToFirst();
+		while(!cursor.isAfterLast()) {
+			String userId = cursor.getString(cursor.getColumnIndex(Tweets.USER_ID));
+			String pictureUrl = cursor.getString(cursor.getColumnIndex(Tweets.PROFILE_IMAGE_URL));
+			String cachedFilename = mCacheDir.getPath() + "/" + userId + ".jpg";
+			downloadImage(pictureUrl, cachedFilename);
+			cursor.moveToNext();
+		}
+		
+		cursor.moveToFirst();
+		return cursor;
 	}
 	
-	public static Bitmap getProfileImage(String imageUrl, String userId) {
+	// Returns the profile image for a given userId
+	public static Bitmap getProfileImage(String userId) {
 		String cachedImageAbsPath = mCacheDir.getAbsolutePath() + "/" + userId + ".jpg";
-		downloadImage(imageUrl, cachedImageAbsPath);
 		return BitmapFactory.decodeFile(cachedImageAbsPath);
 	}
 	
@@ -128,9 +147,7 @@ public class TwitterUpdater {
 					
 					// check if tweet is already in the database
 					cursor = mResolver.query(Twitter.Tweets.CONTENT_URI, null, selection, selectionArgs, null);
-					String cachedFilename = mCacheDir.getPath() + "/" + userId + ".jpg";
-					downloadImage(pictureUrl, cachedFilename);
-					
+
 					if(cursor.getCount() == 0) {
 						Log.d(TAG, "Storing tweet from " + username + " posted at " + timestamp + " into database");
 						

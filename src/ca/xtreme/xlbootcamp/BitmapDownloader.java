@@ -24,7 +24,7 @@ public class BitmapDownloader {
 			final int statusCode = response.getStatusLine().getStatusCode();
 
 			if (statusCode != HttpStatus.SC_OK) {
-				Log.w("ImageDownloader", "Error " + statusCode +
+				Log.w("BitmapDownloader", "Error " + statusCode +
 						" while retrieving bitmap from " + uri);
 				return null;
 			}

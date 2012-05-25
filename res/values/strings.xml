@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="desc">Pic</string>
-    <string name="app_name">My cool app</string>
-    <string name="refresh">Refresh</string>
+    <string name="app_name">Twitter Feed Viewer</string>
+    <string name="buttonText">Stop</string>
     <string name="nothing_here_to_see_">No tweets loaded yet.</string>
     <string name="hashtag">Hashtag</string>
 </resources>

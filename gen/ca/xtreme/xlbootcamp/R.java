@@ -39,10 +39,9 @@ public final class R {
         public static final int menu=0x7f060000;
     }
     public static final class string {
-        public static final int app_name=0x7f050001;
-        public static final int desc=0x7f050000;
-        public static final int hashtag=0x7f050004;
-        public static final int nothing_here_to_see_=0x7f050003;
-        public static final int refresh=0x7f050002;
+        public static final int app_name=0x7f050000;
+        public static final int buttonText=0x7f050001;
+        public static final int hashtag=0x7f050003;
+        public static final int nothing_here_to_see_=0x7f050002;
     }
 }

@@ -22,11 +22,11 @@ public class HashtagEditActivity extends Activity implements OnClickListener {
 		Intent intent = new Intent();
 		TextView textView = (TextView) findViewById(R.id.editText1);
 		
-		// Pass back the input (hashtag) via the extras field in an intent object
+		// Pass back the input (the hashtag) via the extras field in an intent object
 		intent.putExtra("ca.xtreme.xlbootcamp.Hashtag", textView.getText().toString());
 		setResult(0, intent);
 		
-		// End the activity and return the result of the activity 
+		// End the activity and return the result
 		finish();
 	}
 }

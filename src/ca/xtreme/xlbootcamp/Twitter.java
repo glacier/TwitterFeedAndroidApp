@@ -4,65 +4,43 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 /**
- * Convenience definitions for TweetsProvider
+ * Convenience definitions for TweetsDatabaseProvider
  */
 public final class Twitter {
-    public static final String AUTHORITY = "ca.xtreme.xlbootcamp.tweetsprovider";
+	public static final String AUTHORITY = "ca.xtreme.xlbootcamp.tweetsprovider";
 
-    private Twitter() {}
-    
-    /**
-     * Tweets table
-     */
-    public static final class Tweets implements BaseColumns {
-        private Tweets() {}
-        
-        /**
-         * The content:// style URL for this table
-         */
-        public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/tweets");
+	private Twitter() {}
 
-        /**
-         * The MIME type of {@link #CONTENT_URI} not yet defined.
-         */
+	/**
+	 * Tweets table
+	 */
+	public static final class Tweets implements BaseColumns {
+		private Tweets() {}
 
-        public static final String DEFAULT_SORT_ORDER = "timestamp DESC";
+		/**
+		 * The content:// style URL for this table
+		 */
+		public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/tweets");
 
-        /**
-         * The status of the tweet
-         * <P>Type: TEXT</P>
-         */
-        public static final String MESSAGE = "message";
+		/**
+		 * Used to store the values of a row in the content provider
+		 */
+		public static final String TWEET = "tweet";
+		
+		public static final String DEFAULT_SORT_ORDER = "unix_time DESC";
 
-        /**
-         * name of the twitter user
-         * <P>Type: TEXT</P>
-         */
-        public static final String USERNAME = "username";
+		public static final String MESSAGE = "message";
 
-        /**
-         * The timestamp for when the tweet was posted
-         */
-        public static final String CREATED_DATE = "timestamp";
-        
-        /**
-         * The user profile image url 
-         */        
-        public static final String PROFILE_IMAGE_URL = "photo_url";
+		public static final String USERNAME = "username";
 
-        /**
-         * The timestamp for when the note was last modified
-         * <P>Type: INTEGER (long from System.curentTimeMillis())</P>
-         */
-        public static final String MODIFIED_DATE = "modified";
+		public static final String CREATED_DATE = "timestamp";
 
-        /**
-         * Used to store the values of a row in the content provider
-         */
-		public static final String STATUS = "status";
+		public static final String PROFILE_IMAGE_URL = "photo_url";
 
 		public static final String USER_ID = "userid";
-		
+
 		public static final String HASHTAG = "hashtag";
-    }
+
+		public static final String UNIX_TIME = "unix_time";
+	}
 }

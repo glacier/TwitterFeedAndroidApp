@@ -136,7 +136,7 @@ public class TwitterUpdater {
 			return builder.toString();
 		} catch (final IOException e) {
 			Log.d(TAG, "IOException: Message: " + e.getMessage());
-			// show error to user instead of logging, which is bad.
+			// TODO show error to user instead of logging.
 		} finally {
 			if(httpClient != null) {
 				httpClient.close();
@@ -208,8 +208,7 @@ public class TwitterUpdater {
 		} catch (JSONException e) {
 			Log.e(TAG, "JSONException problem creating JSONObject from tokener:", e);
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, "Could not parse date string:", e);
 		}
 		
 		return tweetList;

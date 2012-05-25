@@ -40,7 +40,7 @@ public class TwitterFeedActivity extends ListActivity implements OnClickListener
 	}
 
 	public void onClick(View v) {
-		mTimer.cancel();
+			mTimer.cancel();
 	}
 
 	@Override

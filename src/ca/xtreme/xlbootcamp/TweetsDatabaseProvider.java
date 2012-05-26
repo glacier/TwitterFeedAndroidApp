@@ -87,7 +87,7 @@ public class TweetsDatabaseProvider extends ContentProvider {
 
 		case TWEET_HASHTAG:
 			qb.setProjectionMap(sTweetsProjectionMap);
-			qb.appendWhere(Tweets.HASHTAG + "=" + "\"" + uri.getPathSegments().get(1) + "\"");
+			qb.appendWhere(Tweets.HASHTAG + "=" + "\"" + uri.getPathSegments().get(1).substring(1) + "\"");
 			break;
 
 		default:

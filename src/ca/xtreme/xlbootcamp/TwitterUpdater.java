@@ -70,7 +70,7 @@ public class TwitterUpdater {
 		ArrayList<ContentValues> newTweets = storeTweetsInContentProvider(tweetList);
 		
 		// Retrieve the tweets with hashtag mSearchString from the database
-		Uri uri = Uri.withAppendedPath(Twitter.Tweets.CONTENT_URI, mSearchString);
+		Uri uri = Uri.withAppendedPath(Twitter.Tweets.CONTENT_URI, "#" + mSearchString);
 
 		// For each tweet retrieve from the database, download the corresponding
 		// profile image if its not already in the disk cache

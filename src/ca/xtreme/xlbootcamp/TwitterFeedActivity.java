@@ -36,7 +36,7 @@ public class TwitterFeedActivity extends ListActivity implements OnClickListener
 
 		//Add a timer to check for new tweets every 30 seconds
 		mTimer = new Timer();
-		mTimer.schedule(new TweetTimerTask(), 0);
+		mTimer.scheduleAtFixedRate(new TweetTimerTask(), 0, 30000);
 	}
 
 	public void onClick(View v) {

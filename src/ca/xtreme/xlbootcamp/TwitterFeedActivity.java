@@ -20,7 +20,7 @@ import android.widget.ListView;
 
 public class TwitterFeedActivity extends ListActivity implements OnClickListener {
 
-	private TwitterUpdater twitter;
+	private TwitterClient twitter;
 	private Handler mHandler = new Handler();
 	private Timer mTimer;
 	
@@ -32,7 +32,7 @@ public class TwitterFeedActivity extends ListActivity implements OnClickListener
 		Button button = (Button) findViewById(R.id.button);
 		button.setOnClickListener(this);
 
-		twitter = new TwitterUpdater(this, "bieber");
+		twitter = new TwitterClient(this, "bieber");
 
 		//Add a timer to check for new tweets every 30 seconds
 		mTimer = new Timer();
@@ -66,7 +66,7 @@ public class TwitterFeedActivity extends ListActivity implements OnClickListener
 		if (searchString == null) {
 			searchString = "bieber";
 		}
-		twitter = new TwitterUpdater(this, searchString);
+		twitter = new TwitterClient(this, searchString);
 		
 		new DownloadTweetTask().execute();
 	}
@@ -98,8 +98,8 @@ public class TwitterFeedActivity extends ListActivity implements OnClickListener
 			//TODO add list "push down" animation
 			TwitterSimpleCursorAdapter adapter = 
 					new TwitterSimpleCursorAdapter(TwitterFeedActivity.this, R.layout.list_item, result, 
-							TwitterUpdater.FROM, 
-							TwitterUpdater.TO,
+							TwitterClient.FROM, 
+							TwitterClient.TO,
 							twitter);
 			list.setAdapter(adapter);
 			list.startLayoutAnimation();

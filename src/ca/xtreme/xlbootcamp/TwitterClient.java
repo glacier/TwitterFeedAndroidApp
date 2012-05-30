@@ -31,7 +31,7 @@ import android.util.Log;
 import ca.xtreme.xlbootcamp.Twitter.Tweets;
 
 
-public class TwitterUpdater {
+public class TwitterClient {
 	private static final String TAG = "TwitterUpdater";
 
 	// Defines a list of columns to retrieve from the Cursor
@@ -56,7 +56,7 @@ public class TwitterUpdater {
 	private String mSearchURI;
 	private String mSearchString;
 
-	public TwitterUpdater(Context ctx, String searchString) {
+	public TwitterClient(Context ctx, String searchString) {
 		mCtx = ctx;
 		mResolver = ctx.getContentResolver();
 		mCacheDir = mCtx.getCacheDir();
@@ -79,18 +79,20 @@ public class TwitterUpdater {
 		// TODO Implement an explicit cache clearing mechanism instead of
 		// relying on the phone's default cache clearing policy.
 		Cursor cursor = mResolver.query(uri, null, null, null, null);
-		cursor.moveToFirst();
-		while(!cursor.isAfterLast()) {
-			String userId = cursor.getString(cursor.getColumnIndex(Tweets.USER_ID));
-			String pictureUrl = cursor.getString(cursor.getColumnIndex(Tweets.PROFILE_IMAGE_URL));
-
-			downloadImage(pictureUrl, getCachedPhotoPath(userId));
-			cursor.moveToNext();
-		}
 		
-		// Returns the cursor over all the rows in the db
-		// where hashtag = mSearchString
-		cursor.moveToFirst();
+// 		Not allowed to download all the images at once
+//		cursor.moveToFirst();
+//		while(!cursor.isAfterLast()) {
+//			String userId = cursor.getString(cursor.getColumnIndex(Tweets.USER_ID));
+//			String pictureUrl = cursor.getString(cursor.getColumnIndex(Tweets.PROFILE_IMAGE_URL));
+//
+//			downloadImage(pictureUrl, getCachedPhotoPath(userId));
+//			cursor.moveToNext();
+//		}
+//		
+//		// Returns the cursor over all the rows in the db
+//		// where hashtag = mSearchString
+//		cursor.moveToFirst();
 		
 		return cursor;
 	}
@@ -110,18 +112,20 @@ public class TwitterUpdater {
 
 	// Gets and parses the latest tweets from twitter
 	private String downloadTweetsAsJSON() {
+		Log.d(TAG, "running downloadTweetsAsJSON");
+		
 		AndroidHttpClient httpClient = AndroidHttpClient.newInstance("Android");
 		final HttpResponse response;
 		final HttpGet get = new HttpGet(mSearchURI);
 		
 		try {
 			response = httpClient.execute(get);
+			Log.d(TAG, response.toString());
 			final int statusCode = response.getStatusLine().getStatusCode();
 
 			if (statusCode != HttpStatus.SC_OK) {
-				// TODO fix this log message
-				Log.w("ImageDownloader", "Error " + statusCode +
-						" while retrieving bitmap from " + mSearchURI);
+				Log.w(TAG, "Error " + statusCode +
+						" while retrieving tweets from " + mSearchURI);
 			}
 
 			// read and serialize JSON data into a string
@@ -131,12 +135,13 @@ public class TwitterUpdater {
 			for (String line = null; (line = reader.readLine()) != null;) {
 				builder.append(line).append("\n");
 			}
+			Log.d(TAG, builder.toString());
 			
 			// parse and extract JSON data
 			return builder.toString();
 		} catch (final IOException e) {
 			Log.d(TAG, "IOException: Message: " + e.getMessage());
-			// TODO show error to user instead of logging.
+			Log.d(TAG, "IOException: " + e.toString());
 		} finally {
 			if(httpClient != null) {
 				httpClient.close();
@@ -178,10 +183,12 @@ public class TwitterUpdater {
 	
 	private ArrayList<ContentValues> parseTwitterJSON(String jsonString) {
 		JSONTokener tokener = new JSONTokener(jsonString);
+		
 		ArrayList<ContentValues> tweetList = new ArrayList<ContentValues>();
 		
 		try {
 			JSONObject jsonObj = new JSONObject(tokener);
+			
 			JSONArray results = jsonObj.getJSONArray("results");
 			
 			for(int i=0; i<results.length(); i++) {
@@ -233,6 +240,9 @@ public class TwitterUpdater {
 				// Create a new row in db with an uri of 
 				// content://#{Twitter.Tweets.CONTENT_URI}/tweets/<id_value>
 				mResolver.insert(Twitter.Tweets.CONTENT_URI, aTweetValue);
+//				mResolver.notifyChange(uri, observer);
+				//set observer to null
+				
 				newTweets.add(aTweetValue);
 			}
 		}

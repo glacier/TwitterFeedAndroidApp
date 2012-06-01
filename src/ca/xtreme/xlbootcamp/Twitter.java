@@ -7,7 +7,7 @@ import android.provider.BaseColumns;
  * Convenience definitions for TweetsDatabaseProvider
  */
 public final class Twitter {
-	public static final String AUTHORITY = "ca.xtreme.xlbootcamp.tweetsprovider";
+	public static final String AUTHORITY = "ca.xtreme.xlbootcamp.provider";
 
 	private Twitter() {}
 

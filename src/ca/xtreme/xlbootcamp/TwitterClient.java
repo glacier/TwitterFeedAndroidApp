@@ -1,9 +1,6 @@
 package ca.xtreme.xlbootcamp;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.ParseException;
@@ -23,12 +20,9 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.net.http.AndroidHttpClient;
 import android.util.Log;
-import ca.xtreme.xlbootcamp.Twitter.Tweets;
 
 
 public class TwitterClient {
@@ -51,15 +45,11 @@ public class TwitterClient {
 	public static final String TWITTER_API_URL = "http://search.twitter.com/search.json?q=";
 
 	private ContentResolver mResolver;
-	private static Context mCtx;
-	private static File mCacheDir;
 	private String mSearchURI;
 	private String mSearchString;
-
+	
 	public TwitterClient(Context ctx, String searchString) {
-		mCtx = ctx;
 		mResolver = ctx.getContentResolver();
-		mCacheDir = mCtx.getCacheDir();
 		mSearchString = searchString;
 		mSearchURI = TWITTER_API_URL + "#" + searchString;
 	}
@@ -80,36 +70,9 @@ public class TwitterClient {
 		// relying on the phone's default cache clearing policy.
 		Cursor cursor = mResolver.query(uri, null, null, null, null);
 		
-// 		Not allowed to download all the images at once
-//		cursor.moveToFirst();
-//		while(!cursor.isAfterLast()) {
-//			String userId = cursor.getString(cursor.getColumnIndex(Tweets.USER_ID));
-//			String pictureUrl = cursor.getString(cursor.getColumnIndex(Tweets.PROFILE_IMAGE_URL));
-//
-//			downloadImage(pictureUrl, getCachedPhotoPath(userId));
-//			cursor.moveToNext();
-//		}
-//		
-//		// Returns the cursor over all the rows in the db
-//		// where hashtag = mSearchString
-//		cursor.moveToFirst();
-		
 		return cursor;
 	}
-
-	// Returns the profile image for a given userId
-	public Bitmap getProfileImage(String userId) {
-		String cachedImageAbsPath = getCachedPhotoPath(userId);
-		
-		return BitmapFactory.decodeFile(cachedImageAbsPath);
-	}
-
-	private String getCachedPhotoPath(String twitterUserId) {
-		String cachedFilename = mCacheDir.getPath() + "/" + twitterUserId + ".jpg";
-		
-		return cachedFilename;
-	}
-
+	
 	// Gets and parses the latest tweets from twitter
 	private String downloadTweetsAsJSON() {
 		Log.d(TAG, "running downloadTweetsAsJSON");
@@ -149,36 +112,6 @@ public class TwitterClient {
 		}
 		
 		return null;
-	}
-
-	private static boolean downloadImage(String imageUrl, String diskFilename) {
-		File file = new File(diskFilename);
-		if(!file.exists()) {
-			return forceDownloadImage(imageUrl, file);
-		}
-		
-		return false;
-	}
-
-	private static boolean forceDownloadImage(String imageUrl, File file) {
-		Bitmap image = BitmapDownloader.downloadBitmap(imageUrl);
-
-		if(image == null) {
-			return false;
-		}
-
-		try {
-			FileOutputStream fout = new FileOutputStream(file);
-			image.compress(Bitmap.CompressFormat.JPEG, 100, fout);
-			fout.flush();
-			fout.close();
-		} catch (FileNotFoundException e) {
-			Log.d("TwitterUpdater", "Could not open " + file.getAbsoluteFile());
-		} catch (IOException e) {
-			Log.d("TwitterUpdater", "Could not compress bitmap");
-		}
-		
-		return true;
 	}
 	
 	private ArrayList<ContentValues> parseTwitterJSON(String jsonString) {

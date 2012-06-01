@@ -35,8 +35,10 @@ public class TwitterFeedActivity extends ListActivity implements OnClickListener
 		twitter = new TwitterClient(this, "bieber");
 
 		//Add a timer to check for new tweets every 30 seconds
-		mTimer = new Timer();
-		mTimer.scheduleAtFixedRate(new TweetTimerTask(), 0, 30000);
+//		mTimer = new Timer();
+//		mTimer.scheduleAtFixedRate(new TweetTimerTask(), 0, 30000);
+//		new TweetTimerTask();
+		new DownloadTweetTask().execute();
 	}
 
 	public void onClick(View v) {
@@ -99,8 +101,7 @@ public class TwitterFeedActivity extends ListActivity implements OnClickListener
 			TwitterSimpleCursorAdapter adapter = 
 					new TwitterSimpleCursorAdapter(TwitterFeedActivity.this, R.layout.list_item, result, 
 							TwitterClient.FROM, 
-							TwitterClient.TO,
-							twitter);
+							TwitterClient.TO);
 			list.setAdapter(adapter);
 			list.startLayoutAnimation();
 		}

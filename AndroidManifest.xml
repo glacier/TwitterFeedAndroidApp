@@ -44,7 +44,7 @@
 				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
 		</activity>
-		<provider android:name=".TweetsDatabaseProvider"
-				  android:authorities="ca.xtreme.xlbootcamp.tweetsprovider" />
+		<provider android:name="ca.xtreme.xlbootcamp.TweetsDatabaseProvider"
+				  android:authorities="ca.xtreme.xlbootcamp.provider" />
     </application>
 </manifest> 

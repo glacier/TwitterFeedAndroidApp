@@ -2,7 +2,6 @@ package ca.xtreme.xlbootcamp;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +30,6 @@ public class TwitterCursorAdapter extends CursorAdapter {
 		
 		//Set the rest of the views
 		TextView textView = (TextView) view.findViewById(R.id.username);
-		Log.d("TwitterCursorAdapter", "Got view with username field=" + textView.getText().toString());
 		setText(cursor, textView, "username");
 
 		textView = (TextView) view.findViewById(R.id.tweet_content);
@@ -50,13 +48,7 @@ public class TwitterCursorAdapter extends CursorAdapter {
 	public View newView(Context context, Cursor cursor, ViewGroup parent) {
 		LayoutInflater inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View view = inflater.inflate(R.layout.list_item, parent, false);
-		
-		if(view.isShown()) {
-			Log.d("TwitterCursorAdapter", "Created new view. View is VISIBLE " + parent.getChildCount());
-		} else {
-			Log.d("TwitterCursorAdapter", "Created new view. View is GONE " + parent.getChildCount());
-		}
-		
+
 		return view;
 	}
 }

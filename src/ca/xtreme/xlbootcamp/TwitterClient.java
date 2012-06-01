@@ -173,9 +173,8 @@ public class TwitterClient {
 				// Create a new row in db with an uri of 
 				// content://#{Twitter.Tweets.CONTENT_URI}/tweets/<id_value>
 				mResolver.insert(Twitter.Tweets.CONTENT_URI, aTweetValue);
-//				mResolver.notifyChange(uri, observer);
+				mResolver.notifyChange(Twitter.Tweets.CONTENT_URI, null);
 				//set observer to null
-				
 				newTweets.add(aTweetValue);
 			}
 		}

@@ -25,10 +25,9 @@ public class BitmapDownloader {
 		new DownloadImageTask(imageView).execute(imageUrl, diskFilename);
 	}
 	
-	// Note: not actually sure that I define an asynctask class inside a class
-	// that is not an Activity class
 	private class DownloadImageTask extends AsyncTask<String, Integer, Bitmap> {
 		private ImageView imageView;
+		
 		public DownloadImageTask(ImageView imageView) {
 			this.imageView = imageView;
 		}
@@ -41,7 +40,6 @@ public class BitmapDownloader {
 
 		@Override
 		protected void onPostExecute(Bitmap result) {
-			//Set the image to the view
 			imageView.setImageBitmap(result);
 		}
 	}

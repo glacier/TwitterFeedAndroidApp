@@ -98,10 +98,8 @@ public class TwitterFeedActivity extends ListActivity implements OnClickListener
 			ListView list = (ListView) findViewById(android.R.id.list);
 
 			//TODO add list "push down" animation
-			TwitterSimpleCursorAdapter adapter = 
-					new TwitterSimpleCursorAdapter(TwitterFeedActivity.this, R.layout.list_item, result, 
-							TwitterClient.FROM, 
-							TwitterClient.TO);
+			TwitterCursorAdapter adapter = 
+					new TwitterCursorAdapter(TwitterFeedActivity.this, R.layout.list_item, result);
 			list.setAdapter(adapter);
 			list.startLayoutAnimation();
 		}

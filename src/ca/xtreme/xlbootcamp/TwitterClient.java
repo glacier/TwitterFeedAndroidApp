@@ -20,7 +20,6 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
@@ -42,7 +41,7 @@ public class TwitterClient {
 	// Defines a list of View IDs that corresponds to Cursor columns
 	public static final int[] TO = {R.id.username, R.id.tweet_content, R.id.timestamp, R.id.profile_pic };
 
-	public static final String TWITTER_API_URL = "http://search.twitter.com/search.json?rpp=30&q=";
+	public static final String TWITTER_API_URL = "http://search.twitter.com/search.json?q=";
 
 	private ContentResolver mResolver;
 	private String mSearchURI;
@@ -54,23 +53,10 @@ public class TwitterClient {
 		mSearchURI = TWITTER_API_URL + "#" + searchString;
 	}
 
-	public Cursor getTimelineUpdates() {
+	public void getTimelineUpdates() {
 		String jsonString = downloadTweetsAsJSON();
 		ArrayList<ContentValues> tweetList = parseTwitterJSON(jsonString);
-		ArrayList<ContentValues> newTweets = storeTweetsInContentProvider(tweetList);
-
-		// Retrieve the tweets with hashtag mSearchString from the database
-		Uri uri = Uri.withAppendedPath(Twitter.Tweets.CONTENT_URI, "#" + mSearchString);
-
-		// For each tweet retrieve from the database, download the corresponding
-		// profile image if its not already in the disk cache
-		// This ensures that the profile image is in the cache when it is being 
-		// displayed
-		// TODO Implement an explicit cache clearing mechanism instead of
-		// relying on the phone's default cache clearing policy.
-		Cursor cursor = mResolver.query(uri, null, null, null, null);
-		
-		return cursor;
+		storeTweetsInContentProvider(tweetList);
 	}
 	
 	// Gets and parses the latest tweets from twitter
@@ -154,8 +140,7 @@ public class TwitterClient {
 		return tweetList;
 	}
 	
-	private ArrayList<ContentValues> storeTweetsInContentProvider(ArrayList<ContentValues> tweetList) {
-		ArrayList<ContentValues> newTweets = new ArrayList<ContentValues>();
+	private void storeTweetsInContentProvider(ArrayList<ContentValues> tweetList) {
 		Cursor cursor = null;
 		
 		for (ContentValues aTweetValue : tweetList) {
@@ -173,15 +158,11 @@ public class TwitterClient {
 				// Create a new row in db with an uri of 
 				// content://#{Twitter.Tweets.CONTENT_URI}/tweets/<id_value>
 				mResolver.insert(Twitter.Tweets.CONTENT_URI, aTweetValue);
-//				mResolver.notifyChange(Twitter.Tweets.CONTENT_URI, null);
-				newTweets.add(aTweetValue);
 			}
 		}
 		
 		if(cursor != null) {
 			cursor.close();
 		}
-		
-		return newTweets;
 	}
 }

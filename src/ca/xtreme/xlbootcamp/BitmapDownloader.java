@@ -18,6 +18,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.ImageView;
 
+
 public class BitmapDownloader {
 
 	// Launches an asynctask to populate an image into a image view

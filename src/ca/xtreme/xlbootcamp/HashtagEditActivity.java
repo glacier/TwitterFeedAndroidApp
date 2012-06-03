@@ -3,6 +3,7 @@ package ca.xtreme.xlbootcamp;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -24,6 +25,9 @@ public class HashtagEditActivity extends Activity implements OnClickListener {
 		
 		// Pass back the input (the hashtag) via the extras field in an intent object
 		intent.putExtra("ca.xtreme.xlbootcamp.Hashtag", textView.getText().toString());
+		
+		Log.d("HashTagEditActivity", "hashtag = " + textView.getText().toString());
+		
 		setResult(0, intent);
 		
 		// End the activity and return the result

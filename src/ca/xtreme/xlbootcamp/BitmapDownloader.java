@@ -21,13 +21,12 @@ import android.widget.ImageView;
 
 public class BitmapDownloader {
 
-	// Launches an asynctask to populate an image into a image view
+	// Launches an AsyncTask to populate an image into a image view
 	public void displayImage(ImageView imageView, String imageUrl, String diskFilename) {
 		// If imageView is already associated with another async task, 
 		// this means that it is part of a recycled list view item that 
-		// has gone out of view.
-		// Cancel this download task because it has gone out of view and we want 
-		// to set a different (new) image.
+		// has gone out of view. Cancel this download task because it 
+		// has gone out of view and set a different (new) image.
 		DownloadImageTask existingTask = (DownloadImageTask) imageView.getTag();
 		if(existingTask != null) {
 			Log.d("BitmapDownloader", "Cancelling existing download task");
@@ -91,9 +90,9 @@ public class BitmapDownloader {
 			fout.flush();
 			fout.close();
 		} catch (FileNotFoundException e) {
-			Log.d("TwitterUpdater", "Could not open " + file.getAbsoluteFile());
+			Log.d("BitmapDownloader", "Could not open " + file.getAbsoluteFile());
 		} catch (IOException e) {
-			Log.d("TwitterUpdater", "Could not compress bitmap");
+			Log.d("BitmapDownloader", "Could not compress bitmap");
 		}
 
 		return image;
@@ -126,7 +125,6 @@ public class BitmapDownloader {
 					if(inputStream != null) {
 						inputStream.close();
 					}
-					// why is this called?
 					entity.consumeContent();
 				}
 			}

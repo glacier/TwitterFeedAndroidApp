@@ -25,7 +25,7 @@ import android.util.Log;
 
 
 public class TwitterClient {
-	private static final String TAG = "TwitterUpdater";
+	private static final String TAG = "TwitterClient";
 
 	// Defines a list of columns to retrieve from the Cursor
 	public static final String[] FROM =
@@ -55,11 +55,17 @@ public class TwitterClient {
 
 	public void getTimelineUpdates() {
 		String jsonString = downloadTweetsAsJSON();
-		ArrayList<ContentValues> tweetList = parseTwitterJSON(jsonString);
-		storeTweetsInContentProvider(tweetList);
+		if(jsonString != null) {
+			ArrayList<ContentValues> tweetList = parseTwitterJSON(jsonString);
+			storeTweetsInContentProvider(tweetList);
+		}
 	}
 	
-	// Gets and parses the latest tweets from twitter
+	/**
+	 * Downloads the latest tweets from Twitter search API as JSON
+	 * @return a serialized JSON string.  The string is null if API call to Twitter 
+	 * failed.
+	 */
 	private String downloadTweetsAsJSON() {
 		Log.d(TAG, "running downloadTweetsAsJSON");
 		
@@ -97,38 +103,45 @@ public class TwitterClient {
 			}
 		}
 		
+		// null is returned when the Twitter API call has failed.
+		// This could be due to problems with Twitter or loss of 
+		// network connectivity on the phone.
 		return null;
 	}
 	
+	/**
+	 * Parses a JSON string of tweets them into a list of ContentValue objects.
+	 * @param jsonString - a non-null JSON string of latest tweets from Twitter. 
+	 * @return list of tweets as ContentValues to be inserted into the content provider
+	 */
 	private ArrayList<ContentValues> parseTwitterJSON(String jsonString) {
-		JSONTokener tokener = new JSONTokener(jsonString);
-		
 		ArrayList<ContentValues> tweetList = new ArrayList<ContentValues>();
 		
+		JSONTokener tokener = new JSONTokener(jsonString);
 		try {
 			JSONObject jsonObj = new JSONObject(tokener);
-			
 			JSONArray results = jsonObj.getJSONArray("results");
-			
+
 			for(int i=0; i<results.length(); i++) {
 				JSONObject aTweet = results.getJSONObject(i);
-				
+
 				ContentValues tweetValue = new ContentValues();
 				tweetValue.put(Twitter.Tweets.USER_ID, aTweet.getString("from_user_id_str"));
 				tweetValue.put(Twitter.Tweets.USERNAME, aTweet.getString("from_user_name"));
 				tweetValue.put(Twitter.Tweets.MESSAGE, aTweet.getString("text"));
 				tweetValue.put(Twitter.Tweets.PROFILE_IMAGE_URL, aTweet.getString("profile_image_url"));
 				tweetValue.put(Twitter.Tweets.HASHTAG, mSearchString);
-				
-				// Parse the date string into a SQLite date string
-				// so that we can properly sort tweets by time
+
+				// Parse the date string into a Unix time in seconds since epoch.
+				// We then sort this time in descending to display the latest 
+				// tweets first.
 				String timestamp = aTweet.getString("created_at");
 				SimpleDateFormat df = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
 				long unixTimeSeconds = df.parse(timestamp).getTime() / 1000;
-				
+
 				tweetValue.put(Twitter.Tweets.UNIX_TIME, unixTimeSeconds);
 				tweetValue.put(Twitter.Tweets.CREATED_DATE, timestamp);
-				
+
 				tweetList.add(tweetValue);
 			}
 		} catch (JSONException e) {
@@ -140,9 +153,20 @@ public class TwitterClient {
 		return tweetList;
 	}
 	
+	/*
+	 * Inserts a list of tweet objects into the content provider. 
+	 * Only new tweets (ie. a tweet that does not have the same username and timestamp as an
+	 * existing tweet in content provider) is inserted
+	 * @param tweetList
+	 */
 	private void storeTweetsInContentProvider(ArrayList<ContentValues> tweetList) {
 		Cursor cursor = null;
 		
+		// For each tweet downloaded from Twitter, store in content provider if 
+		// tweet does not already exist in provider.
+		// Because Twitter API search return the last N most recent tweets for a given hashtag,
+		// we may end up saving lots of duplicates if we don't check for their uniqueness.
+		// Uniqueness of a tweet is determined by the tuple (username, timestamp).
 		for (ContentValues aTweetValue : tweetList) {
 			String username = (String) aTweetValue.get(Twitter.Tweets.USERNAME);
 			String timestamp = (String) aTweetValue.get(Twitter.Tweets.CREATED_DATE);
@@ -152,7 +176,6 @@ public class TwitterClient {
 			selectionArgs[0] = username;
 			selectionArgs[1] = timestamp;
 			
-			// Store new feed updates
 			cursor = mResolver.query(Twitter.Tweets.CONTENT_URI, null, selection, selectionArgs, null);
 			if(cursor.getCount() == 0) {
 				// Create a new row in db with an uri of 

@@ -21,20 +21,18 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.LayoutAnimationController;
 import android.view.animation.TranslateAnimation;
-import android.widget.Button;
 import android.widget.ListView;
 
 
-public class TwitterFeedActivity extends ListActivity implements OnClickListener {
+public class TwitterFeedActivity extends ListActivity {
 
 	public static final String TAG = "TwitterFeedActivity";
+	
 	private TwitterClient twitter;
 	private Handler mHandler = new Handler();
 	private Timer mTimer = null;
@@ -43,7 +41,7 @@ public class TwitterFeedActivity extends ListActivity implements OnClickListener
 	private boolean mConnected = true;
 	
 	// Dialog IDs
-	static final int DIALOG_NOT_CONNECTED_ID = 0;
+	private static final int DIALOG_NOT_CONNECTED_ID = 0;
     
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -51,32 +49,16 @@ public class TwitterFeedActivity extends ListActivity implements OnClickListener
 		setContentView(R.layout.main);
 		
 		if(isConnectedToNetwork()) {
-			// Creates and sets a "cascading list" animation
-			// programmatically.  A better way might be to encode this
-			// as an animation resource.
-			AnimationSet set = new AnimationSet(true);
-
-			Animation animation = new AlphaAnimation(0.0f, 1.0f);
-			animation.setDuration(50);
-			set.addAnimation(animation);
-
-			animation = new TranslateAnimation(
-					Animation.RELATIVE_TO_SELF, 0.0f,Animation.RELATIVE_TO_SELF, 0.0f,
-					Animation.RELATIVE_TO_SELF, -1.0f,Animation.RELATIVE_TO_SELF, 0.0f
-					);
-			animation.setDuration(200);
-			set.addAnimation(animation);
-
-			LayoutAnimationController controller = new LayoutAnimationController(set, 0.5f);
-			ListView listView = getListView();        
-			listView.setLayoutAnimation(controller);
-
-			// Populate the initial list view with tweets
+			// Initialize client which provides access to Twitter
 			twitter = new TwitterClient(this, mSearchString);
+			
+			// Initialize views
 			setupListView(mSearchString);
+			setupListAnimation();
+
 			new DownloadTweetTask().execute();
 
-			// Check for new tweets every 30 seconds
+			// Check for new Twitter updates every 30 seconds
 			mTimer = new Timer();
 			mTimer.scheduleAtFixedRate(new TweetTimerTask(), 30000, 30000);
 		} else {
@@ -106,17 +88,14 @@ public class TwitterFeedActivity extends ListActivity implements OnClickListener
 		
 		return dialog;
 	}
+
 	
-	@Override
-	protected void onStart() {
-		// TODO Auto-generated method stub
-		super.onStart();
-		Log.d(TAG, "onStart() is called");
-	}
-	
+	/*
+	 * Handles Activity Lifecycle
+	 * 
+	 */
 	@Override
 	protected void onStop() {
-		Log.d(TAG, "onStop() is called");
 		super.onStop();
 		if(mTimer != null) {
 			mTimer.cancel();
@@ -125,7 +104,6 @@ public class TwitterFeedActivity extends ListActivity implements OnClickListener
 	
 	@Override
 	protected void onPause() {
-		Log.d(TAG, "onPause() is called");
 		super.onPause();
 		if(mTimer != null) {
 			mTimer.cancel();
@@ -134,33 +112,23 @@ public class TwitterFeedActivity extends ListActivity implements OnClickListener
 	
 	@Override
 	protected void onResume() {
-		Log.d(TAG, "onResume() is called");
 		super.onResume();
-
 		if(mConnected) {
 			// Reschedule the timer task
 			mTimer = new Timer();
 			mTimer.scheduleAtFixedRate(new TweetTimerTask(), 30000, 30000);
 		}
 	}
-	
-	@Override
-	protected void onRestart() {
-		super.onRestart();
-		Log.d(TAG, "onRestart() is called");
-	}
-	
-	public void onClick(View v) {
-		if(mTimer != null) {
-			mTimer.cancel();
-		}
-	}
 
+	
+	/*
+	 * Create menu item
+	 * 
+	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.menu, menu);
-		
 		return true;
 	}
 
@@ -168,13 +136,16 @@ public class TwitterFeedActivity extends ListActivity implements OnClickListener
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Launch activity to insert a new item
 		startActivityForResult(new Intent(Intent.ACTION_EDIT), 1);
-		
 		return super.onOptionsItemSelected(item);
 	}
 
+
+	/*
+	 * Handle the result of Activity launched via intents
+	 * 
+	 */
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Log.d(TAG, "onActivityResult is called");
 		if(data != null) {
 			Bundle extras = data.getExtras();
 			String searchString = extras.getString("ca.xtreme.xlbootcamp.Hashtag");
@@ -188,22 +159,35 @@ public class TwitterFeedActivity extends ListActivity implements OnClickListener
 			new DownloadTweetTask().execute();
 		} else {
 			Log.d(TAG, "Intent data was null. requestCode=" 
-					    + requestCode + " resultCode=" + resultCode);
+				 + requestCode + " resultCode=" + resultCode);
 		}
 	}
 
+	
+	/*
+	 * Helper methods
+	 */
+	
+	/*
+	 * Helper method for determining the state of the phone's network connectivity.
+	 */
 	private boolean isConnectedToNetwork() {
 		ConnectivityManager connMgr = (ConnectivityManager) 
-				getSystemService(Context.CONNECTIVITY_SERVICE);
+								      getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+		
 		if (networkInfo == null || !networkInfo.isConnected()) {
 			mConnected = false;
 			return false;
 		}
+		
 		mConnected = true;
 		return true;
 	}
 	
+	/*
+	 * Binds the content provider to a custom list adapter and binds the list adapter to the ListView.
+	 */
 	private void setupListView(String searchString) {
 		// Retrieve the tweets with hashtag mSearchString from the database
 		Uri uri = Uri.withAppendedPath(Twitter.Tweets.CONTENT_URI, "#" + searchString);
@@ -215,11 +199,36 @@ public class TwitterFeedActivity extends ListActivity implements OnClickListener
 		mCursorAdapter = new TwitterCursorAdapter(TwitterFeedActivity.this, R.layout.list_item, cursor);
 		ListView list = (ListView) findViewById(android.R.id.list);
 		list.setAdapter(mCursorAdapter);
-		
-		// Animate list layout
-		list.startLayoutAnimation();
+	}
+	
+	/*
+	 * Creates and sets a "cascading list" animation programmatically.  
+	 * A better way might be to encode this as an animation resource.
+	 */
+	private void setupListAnimation() {
+
+		AnimationSet set = new AnimationSet(true);
+
+		Animation animation = new AlphaAnimation(0.0f, 1.0f);
+		animation.setDuration(50);
+		set.addAnimation(animation);
+
+		animation = new TranslateAnimation(
+				Animation.RELATIVE_TO_SELF, 0.0f,Animation.RELATIVE_TO_SELF, 0.0f,
+				Animation.RELATIVE_TO_SELF, -1.0f,Animation.RELATIVE_TO_SELF, 0.0f
+				);
+		animation.setDuration(200);
+		set.addAnimation(animation);
+
+		LayoutAnimationController controller = new LayoutAnimationController(set, 0.5f);
+		ListView listView = getListView();        
+		listView.setLayoutAnimation(controller);		
 	}
 
+	
+	/*
+	 * Launches AsyncTasks for updating the UI periodically.
+	 */
 	private class TweetTimerTask extends TimerTask {
 		@Override
 		public void run() {
@@ -231,6 +240,11 @@ public class TwitterFeedActivity extends ListActivity implements OnClickListener
 		}
 	}
 
+	/*
+	 * Launches AsyncTasks for downloading from Twitter and stores new 
+	 * data into the content provider. When async task is done, notifies the 
+	 * Listview of updates to the content provider.
+	 */
 	private class DownloadTweetTask extends AsyncTask<Void, Void, Void> {
 		ProgressDialog progressDialog;
 		

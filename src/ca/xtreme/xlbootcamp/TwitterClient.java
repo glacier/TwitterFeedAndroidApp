@@ -42,7 +42,7 @@ public class TwitterClient {
 	// Defines a list of View IDs that corresponds to Cursor columns
 	public static final int[] TO = {R.id.username, R.id.tweet_content, R.id.timestamp, R.id.profile_pic };
 
-	public static final String TWITTER_API_URL = "http://search.twitter.com/search.json?q=";
+	public static final String TWITTER_API_URL = "http://search.twitter.com/search.json?rpp=30&q=";
 
 	private ContentResolver mResolver;
 	private String mSearchURI;
@@ -58,7 +58,7 @@ public class TwitterClient {
 		String jsonString = downloadTweetsAsJSON();
 		ArrayList<ContentValues> tweetList = parseTwitterJSON(jsonString);
 		ArrayList<ContentValues> newTweets = storeTweetsInContentProvider(tweetList);
-		
+
 		// Retrieve the tweets with hashtag mSearchString from the database
 		Uri uri = Uri.withAppendedPath(Twitter.Tweets.CONTENT_URI, mSearchString);
 
@@ -173,12 +173,11 @@ public class TwitterClient {
 				// Create a new row in db with an uri of 
 				// content://#{Twitter.Tweets.CONTENT_URI}/tweets/<id_value>
 				mResolver.insert(Twitter.Tweets.CONTENT_URI, aTweetValue);
-				mResolver.notifyChange(Twitter.Tweets.CONTENT_URI, null);
-				//set observer to null
+//				mResolver.notifyChange(Twitter.Tweets.CONTENT_URI, null);
 				newTweets.add(aTweetValue);
 			}
 		}
-
+		
 		if(cursor != null) {
 			cursor.close();
 		}

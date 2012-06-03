@@ -22,7 +22,30 @@ public class BitmapDownloader {
 
 	// Launches an asynctask to populate an image into a image view
 	public void displayImage(ImageView imageView, String imageUrl, String diskFilename) {
-		new DownloadImageTask(imageView).execute(imageUrl, diskFilename);
+		// If imageView is already associated with another async task, 
+		// this means that it is part of a recycled list view item that 
+		// has gone out of view.
+		// Cancel this download task because it has gone out of view and we want 
+		// to set a different (new) image.
+		DownloadImageTask existingTask = (DownloadImageTask) imageView.getTag();
+		if(existingTask != null) {
+			Log.d("BitmapDownloader", "Cancelling existing download task");
+			boolean cancelled = existingTask.cancel(true);
+			if(cancelled) {
+				Log.d("BitmapDownloader", "Task cancelled");
+			} else {
+				Log.d("BitmapDownloader", "Task could not be cancelled");
+			}
+		}
+		
+		Log.d("BitmapDownloader", "Set imageview");
+		Log.d("BitmapDownloader", "image url" + imageUrl);
+		Log.d("BitmapDownloader", "filename" + diskFilename);
+		
+		// Fire new task and associate it the imageView
+		DownloadImageTask task = new DownloadImageTask(imageView);
+		imageView.setTag(task);
+		task.execute(imageUrl, diskFilename);
 	}
 	
 	private class DownloadImageTask extends AsyncTask<String, Integer, Bitmap> {
@@ -41,16 +64,16 @@ public class BitmapDownloader {
 		@Override
 		protected void onPostExecute(Bitmap result) {
 			imageView.setImageBitmap(result);
+			imageView.setTag(null);
 		}
 	}
 	
 	private Bitmap getImage(String imageUrl, String diskFilename) {
 		File file = new File(diskFilename);
 		if(!file.exists()) {
-			Log.d("Image Download", "Downloading " + imageUrl);
+			Log.d("BitmapDownloader", "Downloading " + imageUrl);
 			return forceDownloadImage(imageUrl, file);
 		}
-//		Log.d("Image Download", "Retrieving from " + diskFilename);
 		return BitmapFactory.decodeFile(diskFilename);
 	}
 	

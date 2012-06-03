@@ -21,10 +21,9 @@ public final class R {
         public static final int wood=0x7f020003;
     }
     public static final class id {
-        public static final int button=0x7f070006;
         public static final int button1=0x7f070001;
         public static final int editText1=0x7f070000;
-        public static final int new_hashtag=0x7f070007;
+        public static final int new_hashtag=0x7f070006;
         public static final int profile_pic=0x7f070002;
         public static final int timestamp=0x7f070005;
         public static final int tweet_content=0x7f070004;

@@ -3,17 +3,11 @@
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
 	android:orientation="vertical" >
-	<Button
-		android:id="@+id/button"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:text="@string/buttonText" />
 	<ListView
 		android:id="@android:id/list"
 		android:persistentDrawingCache="animation|scrolling"
 		android:layout_width="wrap_content"
-		android:layout_height="fill_parent"
-		android:layoutAnimation="@anim/list_layout_controller" />
+		android:layout_height="fill_parent" />
 	<TextView
 		android:id="@android:id/empty"
 		android:layout_width="match_parent"

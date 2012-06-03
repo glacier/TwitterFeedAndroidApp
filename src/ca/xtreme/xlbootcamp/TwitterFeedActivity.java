@@ -45,6 +45,8 @@ public class TwitterFeedActivity extends ListActivity {
     
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		Log.d(TAG, "onCreate() called");
+		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		
@@ -99,15 +101,21 @@ public class TwitterFeedActivity extends ListActivity {
 		super.onStop();
 		if(mTimer != null) {
 			mTimer.cancel();
+			mTimer.purge();
+			Log.d(TAG, "timer was cancelled and purged in onStop()");
 		}
+		Log.d(TAG, "onStop() called");
 	}
 	
 	@Override
 	protected void onPause() {
 		super.onPause();
 		if(mTimer != null) {
+			Log.d(TAG, "timer was cancelled and purged in onPause()");
 			mTimer.cancel();
+			mTimer.purge();
 		}
+		Log.d(TAG, "onPause() called");
 	}
 	
 	@Override
@@ -117,6 +125,20 @@ public class TwitterFeedActivity extends ListActivity {
 			// Reschedule the timer task
 			mTimer = new Timer();
 			mTimer.scheduleAtFixedRate(new TweetTimerTask(), 30000, 30000);
+		}
+		Log.d(TAG, "onResume() called");
+	}
+
+	@Override
+	protected void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+		Log.d(TAG, "onDestroy() called");
+		
+		if(mTimer != null) {
+			Log.d(TAG, "timer was cancelled and purged in onDestroy()");
+			mTimer.cancel();
+			mTimer.purge();
 		}
 	}
 
@@ -232,9 +254,16 @@ public class TwitterFeedActivity extends ListActivity {
 	private class TweetTimerTask extends TimerTask {
 		@Override
 		public void run() {
+			if(isFinishing()) {
+				Log.d(TAG, "TimerTask activity finishing is detected. Attempt to cancel itself");
+				this.cancel();
+				return;
+			}
+			
 			mHandler.post(new Runnable() {
 				public void run() {
-					new DownloadTweetTask().execute();	
+					Log.d(TAG, "TimerTask running ...");
+					new DownloadTweetTask().execute();
 				}
 			});
 		}
@@ -250,14 +279,23 @@ public class TwitterFeedActivity extends ListActivity {
 		
 		@Override
 		protected void onPreExecute() {
+			if(isCancelled() || isFinishing()) {
+				this.cancel(true);
+				return;
+			}
+			
 			// Set up progress spinning wheel
 			progressDialog = ProgressDialog.show(TwitterFeedActivity.this, 
 												"Updating Tweets", "Please Wait ...");
 		}
 		
-		
 		@Override
 		protected Void doInBackground(Void... params){
+			if(isCancelled() || isFinishing()) {
+				this.cancel(true);
+				return null;
+			}
+			
 			Log.d(TAG, "Updating tweets ...");
 			twitter.getTimelineUpdates();
 			return null;
@@ -265,6 +303,11 @@ public class TwitterFeedActivity extends ListActivity {
 
 		@Override
 		protected void onPostExecute(Void result) {
+			if(isCancelled() || isFinishing()) {
+				this.cancel(true);
+				return;
+			}
+			
 			Log.d(TAG, "Notifying of dataset changes ...");
 			progressDialog.dismiss();
 			

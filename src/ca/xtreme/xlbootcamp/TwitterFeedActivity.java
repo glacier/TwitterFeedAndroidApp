@@ -31,7 +31,6 @@ import android.widget.ListView;
 public class TwitterFeedActivity extends ListActivity {
 
 	public static final String TAG = "TwitterFeedActivity";
-	private static final String ACTIVITY_NAME = "ca.xtreme.xlbootcamp.Hashtag";
 	private static final int DIALOG_NOT_CONNECTED_ID = 0;
     
 	private TwitterClient twitter;

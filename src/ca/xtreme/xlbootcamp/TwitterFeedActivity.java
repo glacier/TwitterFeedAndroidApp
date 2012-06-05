@@ -124,7 +124,7 @@ public class TwitterFeedActivity extends ListActivity {
 			if(mTimer == null) {
 				// Reschedule the timer task
 				mTimer = new Timer();
-				mTimer.scheduleAtFixedRate(new TweetTimerTask(), 30000, 30000);
+				mTimer.scheduleAtFixedRate(new TweetTimerTask(), 0, 30000);
 			} else {
 				Log.d(TAG, "timer is not null. an instance of timer still exists");
 			}
@@ -134,18 +134,7 @@ public class TwitterFeedActivity extends ListActivity {
 	@Override
 	protected void onRestart() {
 		Log.d(TAG, "onRestart() called");
-		
 		super.onRestart();
-		
-		if(mConnected) {
-			if(mTimer == null) {
-				// Reschedule the timer task
-				mTimer = new Timer();
-				mTimer.scheduleAtFixedRate(new TweetTimerTask(), 30000, 30000);
-			} else {
-				Log.d(TAG, "timer is not null. an instance of timer still exists");
-			}
-		}
 	}
 
 	@Override
@@ -200,7 +189,6 @@ public class TwitterFeedActivity extends ListActivity {
 			mSearchString = searchString;
 			twitter = new TwitterClient(this, searchString);
 			setupListView(searchString);
-			new DownloadTweetTask().execute();
 		} else {
 			Log.d(TAG, "Intent data was null. requestCode=" 
 				 + requestCode + " resultCode=" + resultCode);

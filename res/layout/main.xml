@@ -6,11 +6,11 @@
 	<ListView
 		android:id="@android:id/list"
 		android:persistentDrawingCache="animation|scrolling"
-		android:layout_width="wrap_content"
+		android:layout_width="fill_parent"
 		android:layout_height="fill_parent" />
 	<TextView
 		android:id="@android:id/empty"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
 		android:text="@string/nothing_here_to_see_" />
 </LinearLayout>

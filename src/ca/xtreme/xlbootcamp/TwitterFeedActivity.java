@@ -39,6 +39,9 @@ public class TwitterFeedActivity extends ListActivity {
 	private TwitterCursorAdapter mCursorAdapter;
 	private String mSearchString = "bieber";
 	private boolean mConnected = true;
+
+	private Cursor mCursor;
+	
 	
 	// Dialog IDs
 	private static final int DIALOG_NOT_CONNECTED_ID = 0;
@@ -58,11 +61,10 @@ public class TwitterFeedActivity extends ListActivity {
 			setupListView(mSearchString);
 			setupListAnimation();
 
-			new DownloadTweetTask().execute();
-
+//			new DownloadTweetTask().execute();
 			// Check for new Twitter updates every 30 seconds
-			mTimer = new Timer();
-			mTimer.scheduleAtFixedRate(new TweetTimerTask(), 30000, 30000);
+//			mTimer = new Timer();
+//			mTimer.scheduleAtFixedRate(new TweetTimerTask(), 30000, 30000);
 		} else {
 			showDialog(DIALOG_NOT_CONNECTED_ID);
 		}
@@ -98,48 +100,78 @@ public class TwitterFeedActivity extends ListActivity {
 	 */
 	@Override
 	protected void onStop() {
+		Log.d(TAG, "onStop() called");
 		super.onStop();
+		
 		if(mTimer != null) {
 			mTimer.cancel();
-			mTimer.purge();
+			mTimer = null;
 			Log.d(TAG, "timer was cancelled and purged in onStop()");
 		}
-		Log.d(TAG, "onStop() called");
+//		finish();
 	}
 	
 	@Override
 	protected void onPause() {
+		Log.d(TAG, "onPause() called");
+		
 		super.onPause();
+		
 		if(mTimer != null) {
 			Log.d(TAG, "timer was cancelled and purged in onPause()");
 			mTimer.cancel();
-			mTimer.purge();
+			mTimer = null;
 		}
-		Log.d(TAG, "onPause() called");
+	
 	}
 	
 	@Override
 	protected void onResume() {
-		super.onResume();
-		if(mConnected) {
-			// Reschedule the timer task
-			mTimer = new Timer();
-			mTimer.scheduleAtFixedRate(new TweetTimerTask(), 30000, 30000);
-		}
 		Log.d(TAG, "onResume() called");
+
+		super.onResume();
+		
+		if(mConnected) {
+			if(mTimer == null) {
+				// Reschedule the timer task
+				mTimer = new Timer();
+				mTimer.scheduleAtFixedRate(new TweetTimerTask(), 30000, 30000);
+			} else {
+				Log.d(TAG, "timer is not null. an instance of timer still exists");
+			}
+		}
+	}
+	
+	@Override
+	protected void onRestart() {
+		Log.d(TAG, "onRestart() called");
+		
+		super.onRestart();
+		
+		if(mConnected) {
+			if(mTimer == null) {
+				// Reschedule the timer task
+				mTimer = new Timer();
+				mTimer.scheduleAtFixedRate(new TweetTimerTask(), 30000, 30000);
+			} else {
+				Log.d(TAG, "timer is not null. an instance of timer still exists");
+			}
+		}
 	}
 
 	@Override
 	protected void onDestroy() {
-		// TODO Auto-generated method stub
-		super.onDestroy();
 		Log.d(TAG, "onDestroy() called");
 		
+		super.onDestroy();
+
 		if(mTimer != null) {
 			Log.d(TAG, "timer was cancelled and purged in onDestroy()");
 			mTimer.cancel();
 			mTimer.purge();
 		}
+		
+		finish();
 	}
 
 	
@@ -175,6 +207,7 @@ public class TwitterFeedActivity extends ListActivity {
 			if (searchString == null) {
 				searchString = "bieber";
 			}
+			
 			mSearchString = searchString;
 			twitter = new TwitterClient(this, searchString);
 			setupListView(searchString);
@@ -213,12 +246,12 @@ public class TwitterFeedActivity extends ListActivity {
 	private void setupListView(String searchString) {
 		// Retrieve the tweets with hashtag mSearchString from the database
 		Uri uri = Uri.withAppendedPath(Twitter.Tweets.CONTENT_URI, "#" + searchString);
-		Cursor cursor = getApplication().getContentResolver().query(uri, null, null, null, null);
-		startManagingCursor(cursor);
-
+		mCursor = managedQuery(uri, null, null, null, null);
+		mCursor.setNotificationUri(getContentResolver(), uri);
+		
 		// Initialize a custom CursorAdapter and populate the list view
 		// using data from the content provider returned via the cursor
-		mCursorAdapter = new TwitterCursorAdapter(TwitterFeedActivity.this, R.layout.list_item, cursor);
+		mCursorAdapter = new TwitterCursorAdapter(TwitterFeedActivity.this, R.layout.list_item, mCursor);
 		ListView list = (ListView) findViewById(android.R.id.list);
 		list.setAdapter(mCursorAdapter);
 	}
@@ -254,18 +287,19 @@ public class TwitterFeedActivity extends ListActivity {
 	private class TweetTimerTask extends TimerTask {
 		@Override
 		public void run() {
-			if(isFinishing()) {
-				Log.d(TAG, "TimerTask activity finishing is detected. Attempt to cancel itself");
-				this.cancel();
-				return;
-			}
+//			if(isFinishing()) {
+//				this.cancel();
+//				return;
+//			}
 			
-			mHandler.post(new Runnable() {
-				public void run() {
-					Log.d(TAG, "TimerTask running ...");
-					new DownloadTweetTask().execute();
-				}
-			});
+			new DownloadTweetTask().execute();
+			
+//			mHandler.post(new Runnable() {
+//				public void run() {
+//					Log.d(TAG, "TimerTask running ...");
+//					new DownloadTweetTask().execute();
+//				}
+//			});
 		}
 	}
 
@@ -296,8 +330,8 @@ public class TwitterFeedActivity extends ListActivity {
 				return null;
 			}
 			
-			Log.d(TAG, "Updating tweets ...");
 			twitter.getTimelineUpdates();
+			
 			return null;
 		}
 
@@ -308,16 +342,12 @@ public class TwitterFeedActivity extends ListActivity {
 				return;
 			}
 			
-			Log.d(TAG, "Notifying of dataset changes ...");
-			progressDialog.dismiss();
+			if(progressDialog == null) {
+				progressDialog.dismiss();
+			}
 			
-			// Reload cursor data set
-			Cursor c = mCursorAdapter.getCursor();
-			
-			// This is deprecated. I want to use requeryOnBackgroundThread(...) to
-			// update my dataset, but I don't understand how to use it to refresh the 
-			// list view.
-			c.requery();
+			getContentResolver().notifyChange(
+					Uri.withAppendedPath(Twitter.Tweets.CONTENT_URI, "#" + mSearchString), null);
 			
 			// Reanimate the list on update
 			ListView list = (ListView) findViewById(android.R.id.list);

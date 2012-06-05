@@ -178,6 +178,7 @@ public class TwitterClient {
 			
 			cursor = mResolver.query(Twitter.Tweets.CONTENT_URI, null, selection, selectionArgs, null);
 			if(cursor.getCount() == 0) {
+				Log.d(TAG, "Inserting tweet into database ...");
 				// Create a new row in db with an uri of 
 				// content://#{Twitter.Tweets.CONTENT_URI}/tweets/<id_value>
 				mResolver.insert(Twitter.Tweets.CONTENT_URI, aTweetValue);

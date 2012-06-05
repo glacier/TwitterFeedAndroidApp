@@ -78,15 +78,18 @@ public class TweetsDatabaseProvider extends ContentProvider {
 		switch (sUriMatcher.match(uri)) {
 		case TWEETS:
 			qb.setProjectionMap(sTweetsProjectionMap);
+			Log.d(TAG, "Matched TWEETS uri");
 			break;
 
 		case TWEET_ID:
 			qb.setProjectionMap(sTweetsProjectionMap);
+			Log.d(TAG, "Matched TWEET_ID uri");
 			qb.appendWhere(Tweets._ID + "=" + uri.getPathSegments().get(1));
 			break;
 
 		case TWEET_HASHTAG:
 			qb.setProjectionMap(sTweetsProjectionMap);
+			Log.d(TAG, "Matched TWEET_HASHTAG uri");
 			qb.appendWhere(Tweets.HASHTAG + "=" + "\"" + uri.getPathSegments().get(1).substring(1) + "\"");
 			break;
 
@@ -107,7 +110,8 @@ public class TweetsDatabaseProvider extends ContentProvider {
 		Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy);
 
 		// Tell the cursor what uri to watch, so it knows when its source data changes
-		c.setNotificationUri(getContext().getContentResolver(), uri);
+//		Log.d(TAG, "query(): Notifying uri " + uri.toString());
+//		c.setNotificationUri(getContext().getContentResolver(), uri);
 		
 		return c;
 	}
@@ -126,9 +130,11 @@ public class TweetsDatabaseProvider extends ContentProvider {
 
 		SQLiteDatabase db = databaseHelper.getWritableDatabase();
 		long rowId = db.insert(DATABASE_TABLE, Tweets.TWEET, values);
+		Log.d(TAG, "insert(): Inserting on uri " + uri.toString());
+		
 		if (rowId > 0) {
 			Uri tweetUri = ContentUris.withAppendedId(Twitter.Tweets.CONTENT_URI, rowId);
-			getContext().getContentResolver().notifyChange(tweetUri, null);
+//			getContext().getContentResolver().notifyChange(tweetUri, null);
 			
 			return tweetUri;
 		}

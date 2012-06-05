@@ -31,7 +31,7 @@ import android.widget.ListView;
 public class TwitterFeedActivity extends ListActivity {
 
 	public static final String TAG = "TwitterFeedActivity";
-	
+	private static final String ACTIVITY_NAME = "ca.xtreme.xlbootcamp.Hashtag";
 	private static final int DIALOG_NOT_CONNECTED_ID = 0;
     
 	private TwitterClient twitter;
@@ -180,7 +180,7 @@ public class TwitterFeedActivity extends ListActivity {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if(data != null) {
 			Bundle extras = data.getExtras();
-			String searchString = extras.getString("ca.xtreme.xlbootcamp.Hashtag");
+			String searchString = extras.getString(Twitter.HASHTAG_INTENT);
 
 			if (searchString == null) {
 				searchString = "bieber";

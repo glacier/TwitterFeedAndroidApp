@@ -8,7 +8,8 @@ import android.provider.BaseColumns;
  */
 public final class Twitter {
 	public static final String AUTHORITY = "ca.xtreme.xlbootcamp.provider";
-
+	public static final String HASHTAG_INTENT = "ca.xtreme.xlbootcamp.Hashtag";
+	
 	private Twitter() {}
 
 	/**

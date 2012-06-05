@@ -56,8 +56,7 @@ public class BitmapDownloader {
 		}
 
 		@Override
-		protected Bitmap doInBackground(String
-				... uri){
+		protected Bitmap doInBackground(String... uri){
 			return getImage(uri[0], uri[1]);
 		}
 
@@ -72,12 +71,12 @@ public class BitmapDownloader {
 		File file = new File(diskFilename);
 		if(!file.exists()) {
 			Log.d("BitmapDownloader", "Downloading " + imageUrl);
-			return forceDownloadImage(imageUrl, file);
+			return downloadImage(imageUrl, file);
 		}
 		return BitmapFactory.decodeFile(diskFilename);
 	}
 	
-	private Bitmap forceDownloadImage(String imageUrl, File file) {
+	private Bitmap downloadImage(String imageUrl, File file) {
 		Bitmap image = downloadBitmap(imageUrl);
 
 		if(image == null) {

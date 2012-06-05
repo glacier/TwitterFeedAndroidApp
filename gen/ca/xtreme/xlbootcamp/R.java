@@ -21,8 +21,8 @@ public final class R {
         public static final int wood=0x7f020003;
     }
     public static final class id {
-        public static final int button1=0x7f070001;
-        public static final int editText1=0x7f070000;
+        public static final int editDoneButton=0x7f070001;
+        public static final int hashtagText=0x7f070000;
         public static final int new_hashtag=0x7f070006;
         public static final int profile_pic=0x7f070002;
         public static final int timestamp=0x7f070005;
@@ -39,8 +39,7 @@ public final class R {
     }
     public static final class string {
         public static final int app_name=0x7f050000;
-        public static final int buttonText=0x7f050001;
-        public static final int hashtag=0x7f050003;
-        public static final int nothing_here_to_see_=0x7f050002;
+        public static final int hashtag=0x7f050002;
+        public static final int nothing_here_to_see_=0x7f050001;
     }
 }

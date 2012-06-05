@@ -16,7 +16,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -33,19 +32,15 @@ public class TwitterFeedActivity extends ListActivity {
 
 	public static final String TAG = "TwitterFeedActivity";
 	
+	private static final int DIALOG_NOT_CONNECTED_ID = 0;
+    
 	private TwitterClient twitter;
-	private Handler mHandler = new Handler();
 	private Timer mTimer = null;
 	private TwitterCursorAdapter mCursorAdapter;
 	private String mSearchString = "bieber";
 	private boolean mConnected = true;
-
 	private Cursor mCursor;
-	
-	
-	// Dialog IDs
-	private static final int DIALOG_NOT_CONNECTED_ID = 0;
-    
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		Log.d(TAG, "onCreate() called");
@@ -57,14 +52,9 @@ public class TwitterFeedActivity extends ListActivity {
 			// Initialize client which provides access to Twitter
 			twitter = new TwitterClient(this, mSearchString);
 			
-			// Initialize views
+			// Initialize and set up activity list view
 			setupListView(mSearchString);
 			setupListAnimation();
-
-//			new DownloadTweetTask().execute();
-			// Check for new Twitter updates every 30 seconds
-//			mTimer = new Timer();
-//			mTimer.scheduleAtFixedRate(new TweetTimerTask(), 30000, 30000);
 		} else {
 			showDialog(DIALOG_NOT_CONNECTED_ID);
 		}
@@ -86,6 +76,7 @@ public class TwitterFeedActivity extends ListActivity {
 			       });
 			dialog = builder.create();
 			break;
+			
 		default:
 			dialog = null;
 		}
@@ -108,7 +99,6 @@ public class TwitterFeedActivity extends ListActivity {
 			mTimer = null;
 			Log.d(TAG, "timer was cancelled and purged in onStop()");
 		}
-//		finish();
 	}
 	
 	@Override
@@ -122,9 +112,8 @@ public class TwitterFeedActivity extends ListActivity {
 			mTimer.cancel();
 			mTimer = null;
 		}
-	
 	}
-	
+
 	@Override
 	protected void onResume() {
 		Log.d(TAG, "onResume() called");
@@ -247,6 +236,8 @@ public class TwitterFeedActivity extends ListActivity {
 		// Retrieve the tweets with hashtag mSearchString from the database
 		Uri uri = Uri.withAppendedPath(Twitter.Tweets.CONTENT_URI, "#" + searchString);
 		mCursor = managedQuery(uri, null, null, null, null);
+		
+		// Tell the cursor what uri to watch, so it knows when its source data changes
 		mCursor.setNotificationUri(getContentResolver(), uri);
 		
 		// Initialize a custom CursorAdapter and populate the list view
@@ -261,17 +252,16 @@ public class TwitterFeedActivity extends ListActivity {
 	 * A better way might be to encode this as an animation resource.
 	 */
 	private void setupListAnimation() {
-
 		AnimationSet set = new AnimationSet(true);
-
+		
 		Animation animation = new AlphaAnimation(0.0f, 1.0f);
 		animation.setDuration(50);
 		set.addAnimation(animation);
-
+		
 		animation = new TranslateAnimation(
-				Animation.RELATIVE_TO_SELF, 0.0f,Animation.RELATIVE_TO_SELF, 0.0f,
-				Animation.RELATIVE_TO_SELF, -1.0f,Animation.RELATIVE_TO_SELF, 0.0f
-				);
+					Animation.RELATIVE_TO_SELF, 0.0f,Animation.RELATIVE_TO_SELF, 0.0f,
+					Animation.RELATIVE_TO_SELF, -1.0f,Animation.RELATIVE_TO_SELF, 0.0f
+					);
 		animation.setDuration(200);
 		set.addAnimation(animation);
 
@@ -287,19 +277,17 @@ public class TwitterFeedActivity extends ListActivity {
 	private class TweetTimerTask extends TimerTask {
 		@Override
 		public void run() {
-//			if(isFinishing()) {
-//				this.cancel();
-//				return;
-//			}
+			if(isFinishing()) {
+				this.cancel();
+				return;
+			}
 			
-			new DownloadTweetTask().execute();
-			
-//			mHandler.post(new Runnable() {
-//				public void run() {
-//					Log.d(TAG, "TimerTask running ...");
-//					new DownloadTweetTask().execute();
-//				}
-//			});
+			runOnUiThread(new Runnable() {
+				public void run() {
+					Log.d(TAG, "TimerTask running ...");
+					new DownloadTweetTask().execute();
+				}
+			});
 		}
 	}
 
@@ -342,7 +330,7 @@ public class TwitterFeedActivity extends ListActivity {
 				return;
 			}
 			
-			if(progressDialog == null) {
+			if(progressDialog != null) {
 				progressDialog.dismiss();
 			}
 			

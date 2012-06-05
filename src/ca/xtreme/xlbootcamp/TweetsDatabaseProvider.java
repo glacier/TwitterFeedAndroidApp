@@ -108,10 +108,6 @@ public class TweetsDatabaseProvider extends ContentProvider {
 		// Get the database and run the query
 		SQLiteDatabase db = databaseHelper.getReadableDatabase();
 		Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy);
-
-		// Tell the cursor what uri to watch, so it knows when its source data changes
-//		Log.d(TAG, "query(): Notifying uri " + uri.toString());
-//		c.setNotificationUri(getContext().getContentResolver(), uri);
 		
 		return c;
 	}
@@ -133,10 +129,7 @@ public class TweetsDatabaseProvider extends ContentProvider {
 		Log.d(TAG, "insert(): Inserting on uri " + uri.toString());
 		
 		if (rowId > 0) {
-			Uri tweetUri = ContentUris.withAppendedId(Twitter.Tweets.CONTENT_URI, rowId);
-//			getContext().getContentResolver().notifyChange(tweetUri, null);
-			
-			return tweetUri;
+			return ContentUris.withAppendedId(Twitter.Tweets.CONTENT_URI, rowId);
 		}
 
 		throw new SQLException("Failed to insert row into " + uri);

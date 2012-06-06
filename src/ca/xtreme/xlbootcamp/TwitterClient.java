@@ -53,12 +53,14 @@ public class TwitterClient {
 		mSearchURI = TWITTER_API_URL + "#" + searchString;
 	}
 
-	public void getTimelineUpdates() {
+	public boolean getTimelineUpdates() {
 		String jsonString = downloadTweetsAsJSON();
 		if(jsonString != null) {
 			ArrayList<ContentValues> tweetList = parseTwitterJSON(jsonString);
-			storeTweetsInContentProvider(tweetList);
+			boolean updated = storeTweetsInContentProvider(tweetList);
+			return updated;
 		}
+		return false;
 	}
 	
 	/**
@@ -67,7 +69,7 @@ public class TwitterClient {
 	 * failed.
 	 */
 	private String downloadTweetsAsJSON() {
-		Log.d(TAG, "running downloadTweetsAsJSON");
+		Log.d(TAG, "Retrieving tweets from search.twitter.com");
 		
 		AndroidHttpClient httpClient = AndroidHttpClient.newInstance("Android");
 		final HttpResponse response;
@@ -159,8 +161,9 @@ public class TwitterClient {
 	 * existing tweet in content provider) is inserted
 	 * @param tweetList
 	 */
-	private void storeTweetsInContentProvider(ArrayList<ContentValues> tweetList) {
+	private boolean storeTweetsInContentProvider(ArrayList<ContentValues> tweetList) {
 		Cursor cursor = null;
+		boolean newTweetsStored = false;
 		
 		// For each tweet downloaded from Twitter, store in content provider if 
 		// tweet does not already exist in provider.
@@ -182,11 +185,14 @@ public class TwitterClient {
 				// Create a new row in db with an uri of 
 				// content://#{Twitter.Tweets.CONTENT_URI}/tweets/<id_value>
 				mResolver.insert(Twitter.Tweets.CONTENT_URI, aTweetValue);
+				newTweetsStored = true;
 			}
 		}
 		
 		if(cursor != null) {
 			cursor.close();
 		}
+		
+		return newTweetsStored;
 	}
 }

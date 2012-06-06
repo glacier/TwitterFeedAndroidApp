@@ -78,21 +78,17 @@ public class TweetsDatabaseProvider extends ContentProvider {
 		switch (sUriMatcher.match(uri)) {
 		case TWEETS:
 			qb.setProjectionMap(sTweetsProjectionMap);
-			Log.d(TAG, "Matched TWEETS uri");
 			break;
-
 		case TWEET_ID:
 			qb.setProjectionMap(sTweetsProjectionMap);
-			Log.d(TAG, "Matched TWEET_ID uri");
 			qb.appendWhere(Tweets._ID + "=" + uri.getPathSegments().get(1));
 			break;
-
 		case TWEET_HASHTAG:
 			qb.setProjectionMap(sTweetsProjectionMap);
-			Log.d(TAG, "Matched TWEET_HASHTAG uri");
-			qb.appendWhere(Tweets.HASHTAG + "=" + "\"" + uri.getPathSegments().get(1).substring(1) + "\"");
+			qb.appendWhere(Tweets.HASHTAG + "=" + "\"" 
+						  + uri.getPathSegments().get(1).substring(1) 
+						  + "\"");
 			break;
-
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}

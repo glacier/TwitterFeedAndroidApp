@@ -96,18 +96,15 @@ public class TwitterFeedActivity extends ListActivity {
 		if(mTimer != null) {
 			mTimer.cancel();
 			mTimer = null;
-			Log.d(TAG, "timer was cancelled and purged in onStop()");
 		}
 	}
 	
 	@Override
 	protected void onPause() {
 		Log.d(TAG, "onPause() called");
-		
 		super.onPause();
 		
 		if(mTimer != null) {
-			Log.d(TAG, "timer was cancelled and purged in onPause()");
 			mTimer.cancel();
 			mTimer = null;
 		}
@@ -116,7 +113,6 @@ public class TwitterFeedActivity extends ListActivity {
 	@Override
 	protected void onResume() {
 		Log.d(TAG, "onResume() called");
-
 		super.onResume();
 		
 		if(mConnected) {
@@ -124,8 +120,6 @@ public class TwitterFeedActivity extends ListActivity {
 				// Reschedule the timer task
 				mTimer = new Timer();
 				mTimer.scheduleAtFixedRate(new TweetTimerTask(), 0, 30000);
-			} else {
-				Log.d(TAG, "timer is not null. an instance of timer still exists");
 			}
 		}
 	}
@@ -139,11 +133,9 @@ public class TwitterFeedActivity extends ListActivity {
 	@Override
 	protected void onDestroy() {
 		Log.d(TAG, "onDestroy() called");
-		
 		super.onDestroy();
 
 		if(mTimer != null) {
-			Log.d(TAG, "timer was cancelled and purged in onDestroy()");
 			mTimer.cancel();
 			mTimer.purge();
 		}
@@ -283,7 +275,7 @@ public class TwitterFeedActivity extends ListActivity {
 	 * data into the content provider. When async task is done, notifies the 
 	 * Listview of updates to the content provider.
 	 */
-	private class DownloadTweetTask extends AsyncTask<Void, Void, Void> {
+	private class DownloadTweetTask extends AsyncTask<Void, Void, Boolean> {
 		ProgressDialog progressDialog;
 		
 		@Override
@@ -299,19 +291,18 @@ public class TwitterFeedActivity extends ListActivity {
 		}
 		
 		@Override
-		protected Void doInBackground(Void... params){
+		protected Boolean doInBackground(Void... params){
 			if(isCancelled() || isFinishing()) {
 				this.cancel(true);
-				return null;
+				return false;
 			}
 			
-			twitter.getTimelineUpdates();
-			
-			return null;
+			return twitter.getTimelineUpdates();
 		}
 
 		@Override
-		protected void onPostExecute(Void result) {
+		protected void onPostExecute(Boolean updated) {
+			
 			if(isCancelled() || isFinishing()) {
 				this.cancel(true);
 				return;
@@ -321,12 +312,16 @@ public class TwitterFeedActivity extends ListActivity {
 				progressDialog.dismiss();
 			}
 			
-			getContentResolver().notifyChange(
-					Uri.withAppendedPath(Twitter.Tweets.CONTENT_URI, "#" + mSearchString), null);
+			if(updated) {
+				Log.d(TAG, "TweetsDatabaseProvider was updated ... updating listview");
+				
+				getContentResolver().notifyChange(
+						Uri.withAppendedPath(Twitter.Tweets.CONTENT_URI, "#" + mSearchString), null);
 			
-			// Reanimate the list on update
-			ListView list = (ListView) findViewById(android.R.id.list);
-			list.startLayoutAnimation();
+				// Reanimate the list on update
+				ListView list = (ListView) findViewById(android.R.id.list);
+				list.startLayoutAnimation();
+			}
 		}
 	}
 }

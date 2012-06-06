@@ -29,18 +29,11 @@ public class BitmapDownloader {
 		// has gone out of view and set a different (new) image.
 		DownloadImageTask existingTask = (DownloadImageTask) imageView.getTag();
 		if(existingTask != null) {
-			Log.d("BitmapDownloader", "Cancelling existing download task");
 			boolean cancelled = existingTask.cancel(true);
 			if(cancelled) {
 				Log.d("BitmapDownloader", "Task cancelled");
-			} else {
-				Log.d("BitmapDownloader", "Task could not be cancelled");
 			}
 		}
-		
-		Log.d("BitmapDownloader", "Set imageview");
-		Log.d("BitmapDownloader", "image url" + imageUrl);
-		Log.d("BitmapDownloader", "filename" + diskFilename);
 		
 		// Fire new task and associate it the imageView
 		DownloadImageTask task = new DownloadImageTask(imageView);

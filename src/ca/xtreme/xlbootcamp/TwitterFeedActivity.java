@@ -90,64 +90,47 @@ public class TwitterFeedActivity extends ListActivity {
 	 */
 	@Override
 	protected void onStop() {
-		Log.d(TAG, "onStop() called");
 		super.onStop();
-		
-		if(mTimer != null) {
-			mTimer.cancel();
-			mTimer = null;
-			Log.d(TAG, "timer was cancelled and purged in onStop()");
-		}
+		stopTimerTask();
 	}
 	
 	@Override
 	protected void onPause() {
-		Log.d(TAG, "onPause() called");
-		
 		super.onPause();
-		
-		if(mTimer != null) {
-			Log.d(TAG, "timer was cancelled and purged in onPause()");
-			mTimer.cancel();
-			mTimer = null;
-		}
+		stopTimerTask();
 	}
 
 	@Override
 	protected void onResume() {
-		Log.d(TAG, "onResume() called");
-
 		super.onResume();
 		
 		if(mConnected) {
-			if(mTimer == null) {
-				// Reschedule the timer task
-				mTimer = new Timer();
-				mTimer.scheduleAtFixedRate(new TweetTimerTask(), 0, 30000);
-			} else {
-				Log.d(TAG, "timer is not null. an instance of timer still exists");
-			}
+			startTimerTask();
 		}
 	}
 	
-	@Override
-	protected void onRestart() {
-		Log.d(TAG, "onRestart() called");
-		super.onRestart();
+	private void startTimerTask() {
+		// Reschedule the timer task
+		if(mTimer == null) {
+			mTimer = new Timer();
+			mTimer.scheduleAtFixedRate(new TweetTimerTask(), 0, 30000);
+		} else {
+			Log.d(TAG, "timer is not null. an instance of timer still exists");
+		}
 	}
-
-	@Override
-	protected void onDestroy() {
-		Log.d(TAG, "onDestroy() called");
-		
-		super.onDestroy();
-
+	
+	private void stopTimerTask() {
 		if(mTimer != null) {
 			Log.d(TAG, "timer was cancelled and purged in onDestroy()");
 			mTimer.cancel();
 			mTimer.purge();
 		}
-		
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		stopTimerTask();
 		finish();
 	}
 

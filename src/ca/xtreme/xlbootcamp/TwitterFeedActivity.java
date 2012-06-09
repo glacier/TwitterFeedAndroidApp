@@ -288,7 +288,7 @@ public class TwitterFeedActivity extends ListActivity {
 				return null;
 			}
 			
-			twitter.getTimelineUpdates();
+			twitter.retrieveTwitterUpdates();
 			
 			return null;
 		}

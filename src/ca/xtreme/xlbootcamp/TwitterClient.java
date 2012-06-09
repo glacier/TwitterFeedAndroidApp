@@ -53,7 +53,7 @@ public class TwitterClient {
 		mSearchURI = TWITTER_API_URL + "#" + searchString;
 	}
 
-	public void getTimelineUpdates() {
+	public void retrieveTwitterUpdates() {
 		String jsonString = downloadTweetsAsJSON();
 		if(jsonString != null) {
 			ArrayList<ContentValues> tweetList = parseTwitterJSON(jsonString);

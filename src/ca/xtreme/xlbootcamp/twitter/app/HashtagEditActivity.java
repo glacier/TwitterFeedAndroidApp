@@ -1,4 +1,4 @@
-package ca.xtreme.xlbootcamp;
+package ca.xtreme.xlbootcamp.twitter.app;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
+import ca.xtreme.xlbootcamp.twitter.R;
 
 public class HashtagEditActivity extends Activity implements OnClickListener {
 

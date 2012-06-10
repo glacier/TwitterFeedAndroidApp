@@ -1,4 +1,4 @@
-package ca.xtreme.xlbootcamp;
+package ca.xtreme.xlbootcamp.twitter.app;
 
 import java.util.HashMap;
 
@@ -15,7 +15,7 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
-import ca.xtreme.xlbootcamp.Twitter.Tweets;
+import ca.xtreme.xlbootcamp.twitter.app.Twitter.Tweets;
 
 public class TweetsDatabaseProvider extends ContentProvider {
 

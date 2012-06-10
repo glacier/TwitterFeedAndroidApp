@@ -1,4 +1,4 @@
-package ca.xtreme.xlbootcamp;
+package ca.xtreme.xlbootcamp.twitter.api;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,8 +16,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import ca.xtreme.xlbootcamp.twitter.app.Twitter;
+
 import android.content.ContentValues;
-import android.content.Context;
 import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
@@ -25,22 +26,9 @@ import android.util.Log;
 public class TwitterClient {
 	private static final String TAG = "TwitterClient";
 
-	// Defines a list of columns to retrieve from the Cursor
-	public static final String[] FROM =
-		{
-		Twitter.Tweets.USER_ID,
-		Twitter.Tweets.USERNAME,   
-		Twitter.Tweets.MESSAGE,
-		Twitter.Tweets.CREATED_DATE,
-		Twitter.Tweets.PROFILE_IMAGE_URL,
-		Twitter.Tweets.HASHTAG
-		};
-
-	// Defines a list of View IDs that corresponds to Cursor columns
-	public static final int[] TO = {R.id.username, R.id.tweet_content, R.id.timestamp, R.id.profile_pic };
-
 	public static final String TWITTER_API_URL = "http://search.twitter.com/search.json?q=";
 
+<<<<<<< HEAD:src/ca/xtreme/xlbootcamp/TwitterClient.java
 	private String mSearchURI;
 	private String mSearchString;
 	
@@ -61,13 +49,22 @@ public class TwitterClient {
 =======
 	public ArrayList<ContentValues> retrieveTwitterUpdates() throws TwitterClientException {
 		String jsonString = downloadTweetsAsJSON();
+=======
+	public ArrayList<ContentValues> retrieveRecentTweetsByHashtag(String hashtag) 
+			throws TwitterClientException {
+		String jsonString = downloadTweetsAsJSON(hashtag);
+>>>>>>> 4585577fe11bace63ce6b8f0608876308f227689:src/ca/xtreme/xlbootcamp/twitter/api/TwitterClient.java
 		
 		if(jsonString == null) {
-			throw new TwitterClientException("Test");
+			throw new TwitterClientException("Could not download latest tweets from Twitter");
 		}
 
+<<<<<<< HEAD:src/ca/xtreme/xlbootcamp/TwitterClient.java
 		return parseTwitterJSON(jsonString);
 >>>>>>> ae304f2b7283d9879b48adb332bf16bd5a701214
+=======
+		return parseTwitterJSON(jsonString, hashtag);
+>>>>>>> 4585577fe11bace63ce6b8f0608876308f227689:src/ca/xtreme/xlbootcamp/twitter/api/TwitterClient.java
 	}
 	
 	/**
@@ -75,12 +72,17 @@ public class TwitterClient {
 	 * @return a serialized JSON string.  The string is null if API call to Twitter 
 	 * failed.
 	 */
+<<<<<<< HEAD:src/ca/xtreme/xlbootcamp/TwitterClient.java
 	private String downloadTweetsAsJSON() {
 		Log.d(TAG, "Retrieving tweets from search.twitter.com");
+=======
+	private String downloadTweetsAsJSON(String hashtag) {
+		Log.d(TAG, "running downloadTweetsAsJSON");
+>>>>>>> 4585577fe11bace63ce6b8f0608876308f227689:src/ca/xtreme/xlbootcamp/twitter/api/TwitterClient.java
 		
 		AndroidHttpClient httpClient = AndroidHttpClient.newInstance("Android");
 		final HttpResponse response;
-		final HttpGet get = new HttpGet(mSearchURI);
+		final HttpGet get = new HttpGet(TWITTER_API_URL + "#" + hashtag);
 		
 		try {
 			response = httpClient.execute(get);
@@ -89,7 +91,7 @@ public class TwitterClient {
 
 			if (statusCode != HttpStatus.SC_OK) {
 				Log.w(TAG, "Error " + statusCode +
-						" while retrieving tweets from " + mSearchURI);
+						" while retrieving tweets from " + TWITTER_API_URL + "#" + hashtag);
 			}
 
 			// read and serialize JSON data into a string
@@ -104,8 +106,7 @@ public class TwitterClient {
 			// parse and extract JSON data
 			return builder.toString();
 		} catch (final IOException e) {
-			Log.d(TAG, "IOException: Message: " + e.getMessage());
-			Log.d(TAG, "IOException: " + e.toString());
+			Log.d(TAG, "HttpClient encountered a problem", e);
 		} finally {
 			if(httpClient != null) {
 				httpClient.close();
@@ -123,7 +124,7 @@ public class TwitterClient {
 	 * @param jsonString - a non-null JSON string of latest tweets from Twitter. 
 	 * @return list of tweets as ContentValues to be inserted into the content provider
 	 */
-	private ArrayList<ContentValues> parseTwitterJSON(String jsonString) {
+	private ArrayList<ContentValues> parseTwitterJSON(String jsonString, String hashtag) {
 		ArrayList<ContentValues> tweetList = new ArrayList<ContentValues>();
 		
 		JSONTokener tokener = new JSONTokener(jsonString);
@@ -139,7 +140,7 @@ public class TwitterClient {
 				tweetValue.put(Twitter.Tweets.USERNAME, aTweet.getString("from_user_name"));
 				tweetValue.put(Twitter.Tweets.MESSAGE, aTweet.getString("text"));
 				tweetValue.put(Twitter.Tweets.PROFILE_IMAGE_URL, aTweet.getString("profile_image_url"));
-				tweetValue.put(Twitter.Tweets.HASHTAG, mSearchString);
+				tweetValue.put(Twitter.Tweets.HASHTAG, hashtag);
 
 				// Parse the date string into a Unix time in seconds since epoch.
 				// We then sort this time in descending to display the latest 

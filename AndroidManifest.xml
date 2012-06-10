@@ -16,13 +16,13 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       android:versionCode="1"
-      android:versionName="1.0" package="ca.xtreme.xlbootcamp">
+      android:versionName="1.0" package="ca.xtreme.xlbootcamp.twitter">
 <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="9" />
 <uses-permission android:name="android.permission.INTERNET"/>
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application android:icon="@drawable/icon" android:label="@string/app_name">
         <activity
-        	android:name=".TwitterFeedActivity"
+        	android:name=".app.TwitterFeedActivity"
         	android:label="@string/app_name"
         	android:screenOrientation="portrait"
         	android:theme="@android:style/Theme.Black" >
@@ -33,7 +33,7 @@
         </activity>
         
         <activity
-			android:name=".HashtagEditActivity"
+			android:name=".app.HashtagEditActivity"
 			android:configChanges="keyboardHidden|orientation"
 			android:label="@string/hashtag"
 			android:screenOrientation="sensor">
@@ -46,7 +46,7 @@
 				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
 		</activity>
-		<provider android:name="ca.xtreme.xlbootcamp.TweetsDatabaseProvider"
-				  android:authorities="ca.xtreme.xlbootcamp.provider" />
+		<provider android:name="ca.xtreme.xlbootcamp.twitter.app.TweetsDatabaseProvider"
+				  android:authorities="ca.xtreme.xlbootcamp.twitter.app.provider" />
     </application>
 </manifest> 

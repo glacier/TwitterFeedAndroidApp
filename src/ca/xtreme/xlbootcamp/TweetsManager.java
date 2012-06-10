@@ -2,6 +2,8 @@ package ca.xtreme.xlbootcamp;
 
 import java.util.ArrayList;
 
+import ca.xtreme.xlbootcamp.twitter.Twitter;
+
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;

@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import ca.xtreme.xlbootcamp.twitter.Twitter;
+import ca.xtreme.xlbootcamp.twitter.TwitterClient;
+import ca.xtreme.xlbootcamp.twitter.TwitterClientException;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;

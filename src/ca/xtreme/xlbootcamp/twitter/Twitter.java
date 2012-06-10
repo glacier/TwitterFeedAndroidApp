@@ -1,4 +1,4 @@
-package ca.xtreme.xlbootcamp;
+package ca.xtreme.xlbootcamp.twitter;
 
 import android.net.Uri;
 import android.provider.BaseColumns;

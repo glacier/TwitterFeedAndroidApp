@@ -1,4 +1,4 @@
-package ca.xtreme.xlbootcamp;
+package ca.xtreme.xlbootcamp.twitter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,6 +20,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.net.http.AndroidHttpClient;
 import android.util.Log;
+import ca.xtreme.xlbootcamp.R;
 
 
 public class TwitterClient {

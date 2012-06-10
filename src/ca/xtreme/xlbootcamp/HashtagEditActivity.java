@@ -1,5 +1,6 @@
 package ca.xtreme.xlbootcamp;
 
+import ca.xtreme.xlbootcamp.twitter.Twitter;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;

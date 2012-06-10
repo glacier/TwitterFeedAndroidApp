@@ -1,6 +1,5 @@
 package ca.xtreme.xlbootcamp.twitter.app;
 
-import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -8,7 +7,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,7 +27,6 @@ import android.view.animation.LayoutAnimationController;
 import android.view.animation.TranslateAnimation;
 import android.widget.ListView;
 import ca.xtreme.xlbootcamp.twitter.R;
-import ca.xtreme.xlbootcamp.twitter.api.TwitterClient;
 import ca.xtreme.xlbootcamp.twitter.api.TwitterClientException;
 
 
@@ -39,27 +36,22 @@ public class TwitterFeedActivity extends ListActivity {
 	private static final int DIALOG_NOT_CONNECTED_ID = 0;
 	private static final int DIALOG_TWITTER_FAILED_ID = 1;
 	
-	private TwitterClient twitter;
 	private Timer mTimer = null;
 	private TwitterCursorAdapter mCursorAdapter;
 	private String mSearchString = "bieber";
 	private boolean mConnected = true;
 	private Cursor mCursor;
-	private TweetsManager tweetManager;
+	private TweetsHashtagUpdateManager tweetManager;
 	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		Log.d(TAG, "onCreate() called");
-		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		
-		tweetManager = new TweetsManager(this.getContentResolver());
-		
 		if(isConnectedToNetwork()) {
-			// Initialize client which provides access to Twitter
-			twitter = new TwitterClient();
+			// Initialize tweet manager which provides access to Twitter
+			tweetManager = new TweetsHashtagUpdateManager(this.getContentResolver());
 			
 			// Initialize and set up activity list view
 			setupListView(mSearchString);
@@ -162,7 +154,7 @@ public class TwitterFeedActivity extends ListActivity {
 
 
 	/*
-	 * Handle the result of Activity launched via intents
+	 * Handle the result of HashtagEditActivity launched via the option menu
 	 * 
 	 */
 	@Override
@@ -172,8 +164,7 @@ public class TwitterFeedActivity extends ListActivity {
 			mSearchString = extras.getString(Twitter.HASHTAG_INTENT);
 
 			if (mSearchString != null && mSearchString.length() > 0) {
-				Log.d(TAG, "Display tweets with hashtag " + mSearchString);
-				twitter = new TwitterClient();
+				Log.d(TAG, "Displaying tweets with hashtag " + mSearchString);
 				setupListView(mSearchString);
 			}
 		} else {
@@ -296,15 +287,17 @@ public class TwitterFeedActivity extends ListActivity {
 			try {
 				// Grab the tweets from Twitter.com 
 				// and store in our tweets datastore
-				ArrayList<ContentValues> newTweets;
-				newTweets = twitter.retrieveRecentTweetsByHashtag(mSearchString);
-				tweetManager.storeTweets(newTweets);
+				tweetManager.updateNow(mSearchString);
 			} catch (TwitterClientException e) {
 				Log.d(TAG, "Failed to update Twitter.");
 				
 				// Alert the user that twitter didn't work
 				runOnUiThread(new Runnable() {
 					public void run() {
+						if(progressDialog != null) {
+							progressDialog.dismiss();
+						}
+						
 						showDialog(DIALOG_TWITTER_FAILED_ID);
 					}
 				});

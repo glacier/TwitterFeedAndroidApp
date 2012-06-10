@@ -2,19 +2,29 @@ package ca.xtreme.xlbootcamp.twitter.app;
 
 import java.util.ArrayList;
 
+import ca.xtreme.xlbootcamp.twitter.api.TwitterClient;
+import ca.xtreme.xlbootcamp.twitter.api.TwitterClientException;
+
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.util.Log;
 
-public class TweetsManager {
+public class TweetsHashtagUpdateManager {
 	
 	private ContentResolver mResolver;
-	private String TAG = "TweetsManager";
+	private String TAG = "TweetsHashtagUpdateManager";
+	private TwitterClient mTwitter;
 	
-	public TweetsManager(ContentResolver resolver) {
+	
+	public TweetsHashtagUpdateManager(ContentResolver resolver) {
+		mTwitter = new TwitterClient();
 		mResolver = resolver;
+	}
+	
+	public void updateNow(String hashtag) throws TwitterClientException {
+		storeTweets(mTwitter.retrieveRecentTweetsByHashtag(hashtag));
 	}
 	
 	/*
@@ -23,7 +33,7 @@ public class TweetsManager {
 	 * existing tweet in content provider) is inserted
 	 * @param tweetList
 	 */
-	public void storeTweets(ArrayList<ContentValues> tweetList) {
+	private void storeTweets(ArrayList<ContentValues> tweetList) {
 		Cursor cursor = null;
 		
 		// For each tweet downloaded from Twitter, store in content provider if 

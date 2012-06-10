@@ -33,7 +33,7 @@
         </activity>
         
         <activity
-			android:name=".app.HashtagEditActivityctivity"
+			android:name=".app.HashtagEditActivity"
 			android:configChanges="keyboardHidden|orientation"
 			android:label="@string/hashtag"
 			android:screenOrientation="sensor">

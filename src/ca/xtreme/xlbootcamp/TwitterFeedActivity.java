@@ -1,5 +1,6 @@
 package ca.xtreme.xlbootcamp;
 
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -7,6 +8,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -32,13 +34,16 @@ public class TwitterFeedActivity extends ListActivity {
 
 	public static final String TAG = "TwitterFeedActivity";
 	private static final int DIALOG_NOT_CONNECTED_ID = 0;
-    
+	private static final int DIALOG_TWITTER_FAILED_ID = 1;
+	
 	private TwitterClient twitter;
 	private Timer mTimer = null;
 	private TwitterCursorAdapter mCursorAdapter;
 	private String mSearchString = "bieber";
 	private boolean mConnected = true;
 	private Cursor mCursor;
+	private TweetManager tweetManager;
+	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -46,6 +51,8 @@ public class TwitterFeedActivity extends ListActivity {
 		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		
+		tweetManager = new TweetManager(this.getContentResolver());
 		
 		if(isConnectedToNetwork()) {
 			// Initialize client which provides access to Twitter
@@ -61,11 +68,11 @@ public class TwitterFeedActivity extends ListActivity {
 	
 	protected Dialog onCreateDialog(int id, Bundle args) {
 		Dialog dialog;
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		
 		switch(id) {
 		case DIALOG_NOT_CONNECTED_ID:
 			//define dialog
-			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setMessage("No internet connectivity found.")
 			       .setCancelable(false)
 			       .setNegativeButton("OK", new DialogInterface.OnClickListener() {
@@ -75,7 +82,16 @@ public class TwitterFeedActivity extends ListActivity {
 			       });
 			dialog = builder.create();
 			break;
-			
+		case DIALOG_TWITTER_FAILED_ID:
+			builder.setMessage("Failed to update Twitter.")
+					.setCancelable(true)
+					.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+			    	   public void onClick(DialogInterface dialog, int id) {
+			    		   dialog.cancel();
+			    	   }
+					});
+			dialog = builder.create();
+			break;
 		default:
 			dialog = null;
 		}
@@ -102,6 +118,8 @@ public class TwitterFeedActivity extends ListActivity {
 
 	@Override
 	protected void onResume() {
+		Log.d(TAG, "onResume() called");
+		
 		super.onResume();
 		
 		if(mConnected) {
@@ -115,7 +133,7 @@ public class TwitterFeedActivity extends ListActivity {
 			mTimer = new Timer();
 			mTimer.scheduleAtFixedRate(new TweetTimerTask(), 0, 30000);
 		} else {
-			Log.d(TAG, "timer is not null");
+			Log.d(TAG, "A timer instance is not created because it already exists.");
 		}
 	}
 	
@@ -125,6 +143,7 @@ public class TwitterFeedActivity extends ListActivity {
 			mTimer.cancel();
 			mTimer.purge();
 		}
+		mTimer = null;
 	}
 
 	@Override
@@ -165,6 +184,7 @@ public class TwitterFeedActivity extends ListActivity {
 			mSearchString = extras.getString(Twitter.HASHTAG_INTENT);
 
 			if (mSearchString != null && mSearchString.length() > 0) {
+				Log.d(TAG, "Display tweets with hashtag " + mSearchString);
 				twitter = new TwitterClient(this, mSearchString);
 				setupListView(mSearchString);
 			}
@@ -264,7 +284,7 @@ public class TwitterFeedActivity extends ListActivity {
 	 * Listview of updates to the content provider.
 	 */
 	private class DownloadTweetTask extends AsyncTask<Void, Void, Void> {
-		ProgressDialog progressDialog;
+		private ProgressDialog progressDialog;
 		
 		@Override
 		protected void onPreExecute() {
@@ -284,8 +304,26 @@ public class TwitterFeedActivity extends ListActivity {
 				this.cancel(true);
 				return null;
 			}
-			
-			twitter.retrieveTwitterUpdates();
+
+			try {
+				// Grab the tweets from Twitter.com 
+				// and store in our tweets datastore
+				ArrayList<ContentValues> newTweets;
+				newTweets = twitter.retrieveTwitterUpdates();
+				tweetManager.storeTweets(newTweets);
+			} catch (TwitterClientException e) {
+				Log.d(TAG, "Failed to update Twitter.");
+				
+				// Alert the user that twitter didn't work
+				runOnUiThread(new Runnable() {
+					public void run() {
+						showDialog(DIALOG_TWITTER_FAILED_ID);
+					}
+				});
+				
+				// Cancel the execution of this thread
+				this.cancel(true);
+			}
 			
 			return null;
 		}

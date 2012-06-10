@@ -16,10 +16,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
@@ -43,22 +41,22 @@ public class TwitterClient {
 
 	public static final String TWITTER_API_URL = "http://search.twitter.com/search.json?q=";
 
-	private ContentResolver mResolver;
 	private String mSearchURI;
 	private String mSearchString;
 	
 	public TwitterClient(Context ctx, String searchString) {
-		mResolver = ctx.getContentResolver();
 		mSearchString = searchString;
 		mSearchURI = TWITTER_API_URL + "#" + searchString;
 	}
 
-	public void retrieveTwitterUpdates() {
+	public ArrayList<ContentValues> retrieveTwitterUpdates() throws TwitterClientException {
 		String jsonString = downloadTweetsAsJSON();
-		if(jsonString != null) {
-			ArrayList<ContentValues> tweetList = parseTwitterJSON(jsonString);
-			storeTweetsInContentProvider(tweetList);
+		
+		if(jsonString == null) {
+			throw new TwitterClientException("Test");
 		}
+
+		return parseTwitterJSON(jsonString);
 	}
 	
 	/**
@@ -151,42 +149,5 @@ public class TwitterClient {
 		}
 		
 		return tweetList;
-	}
-	
-	/*
-	 * Inserts a list of tweet objects into the content provider. 
-	 * Only new tweets (ie. a tweet that does not have the same username and timestamp as an
-	 * existing tweet in content provider) is inserted
-	 * @param tweetList
-	 */
-	private void storeTweetsInContentProvider(ArrayList<ContentValues> tweetList) {
-		Cursor cursor = null;
-		
-		// For each tweet downloaded from Twitter, store in content provider if 
-		// tweet does not already exist in provider.
-		// Because Twitter API search return the last N most recent tweets for a given hashtag,
-		// we may end up saving lots of duplicates if we don't check for their uniqueness.
-		// Uniqueness of a tweet is determined by the tuple (username, timestamp).
-		for (ContentValues aTweetValue : tweetList) {
-			String username = (String) aTweetValue.get(Twitter.Tweets.USERNAME);
-			String timestamp = (String) aTweetValue.get(Twitter.Tweets.CREATED_DATE);
-			
-			String selection = "username=? and timestamp=?";
-			String [] selectionArgs = new String[2];
-			selectionArgs[0] = username;
-			selectionArgs[1] = timestamp;
-			
-			cursor = mResolver.query(Twitter.Tweets.CONTENT_URI, null, selection, selectionArgs, null);
-			if(cursor.getCount() == 0) {
-				Log.d(TAG, "Inserting tweet into database ...");
-				// Create a new row in db with an uri of 
-				// content://#{Twitter.Tweets.CONTENT_URI}/tweets/<id_value>
-				mResolver.insert(Twitter.Tweets.CONTENT_URI, aTweetValue);
-			}
-		}
-		
-		if(cursor != null) {
-			cursor.close();
-		}
 	}
 }

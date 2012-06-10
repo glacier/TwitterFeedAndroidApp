@@ -115,13 +115,13 @@ public class TwitterFeedActivity extends ListActivity {
 			mTimer = new Timer();
 			mTimer.scheduleAtFixedRate(new TweetTimerTask(), 0, 30000);
 		} else {
-			Log.d(TAG, "timer is not null. an instance of timer still exists");
+			Log.d(TAG, "timer is not null");
 		}
 	}
 	
 	private void stopTimerTask() {
 		if(mTimer != null) {
-			Log.d(TAG, "timer was cancelled and purged in onDestroy()");
+			Log.d(TAG, "timer was cancelled and purged.");
 			mTimer.cancel();
 			mTimer.purge();
 		}
@@ -162,15 +162,12 @@ public class TwitterFeedActivity extends ListActivity {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if(data != null) {
 			Bundle extras = data.getExtras();
-			String searchString = extras.getString(Twitter.HASHTAG_INTENT);
+			mSearchString = extras.getString(Twitter.HASHTAG_INTENT);
 
-			if (searchString == null) {
-				searchString = "bieber";
+			if (mSearchString != null && mSearchString.length() > 0) {
+				twitter = new TwitterClient(this, mSearchString);
+				setupListView(mSearchString);
 			}
-			
-			mSearchString = searchString;
-			twitter = new TwitterClient(this, searchString);
-			setupListView(searchString);
 		} else {
 			Log.d(TAG, "Intent data was null. requestCode=" 
 				 + requestCode + " resultCode=" + resultCode);

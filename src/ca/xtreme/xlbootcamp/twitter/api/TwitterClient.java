@@ -28,43 +28,16 @@ public class TwitterClient {
 
 	public static final String TWITTER_API_URL = "http://search.twitter.com/search.json?q=";
 
-<<<<<<< HEAD:src/ca/xtreme/xlbootcamp/TwitterClient.java
-	private String mSearchURI;
-	private String mSearchString;
-	
-	public TwitterClient(Context ctx, String searchString) {
-		mSearchString = searchString;
-		mSearchURI = TWITTER_API_URL + "#" + searchString;
-	}
 
-<<<<<<< HEAD
-	public boolean getTimelineUpdates() {
-		String jsonString = downloadTweetsAsJSON();
-		if(jsonString != null) {
-			ArrayList<ContentValues> tweetList = parseTwitterJSON(jsonString);
-			boolean updated = storeTweetsInContentProvider(tweetList);
-			return updated;
-		}
-		return false;
-=======
-	public ArrayList<ContentValues> retrieveTwitterUpdates() throws TwitterClientException {
-		String jsonString = downloadTweetsAsJSON();
-=======
 	public ArrayList<ContentValues> retrieveRecentTweetsByHashtag(String hashtag) 
 			throws TwitterClientException {
 		String jsonString = downloadTweetsAsJSON(hashtag);
->>>>>>> 4585577fe11bace63ce6b8f0608876308f227689:src/ca/xtreme/xlbootcamp/twitter/api/TwitterClient.java
 		
 		if(jsonString == null) {
 			throw new TwitterClientException("Could not download latest tweets from Twitter");
 		}
 
-<<<<<<< HEAD:src/ca/xtreme/xlbootcamp/TwitterClient.java
-		return parseTwitterJSON(jsonString);
->>>>>>> ae304f2b7283d9879b48adb332bf16bd5a701214
-=======
 		return parseTwitterJSON(jsonString, hashtag);
->>>>>>> 4585577fe11bace63ce6b8f0608876308f227689:src/ca/xtreme/xlbootcamp/twitter/api/TwitterClient.java
 	}
 	
 	/**
@@ -72,13 +45,9 @@ public class TwitterClient {
 	 * @return a serialized JSON string.  The string is null if API call to Twitter 
 	 * failed.
 	 */
-<<<<<<< HEAD:src/ca/xtreme/xlbootcamp/TwitterClient.java
-	private String downloadTweetsAsJSON() {
-		Log.d(TAG, "Retrieving tweets from search.twitter.com");
-=======
+
 	private String downloadTweetsAsJSON(String hashtag) {
 		Log.d(TAG, "running downloadTweetsAsJSON");
->>>>>>> 4585577fe11bace63ce6b8f0608876308f227689:src/ca/xtreme/xlbootcamp/twitter/api/TwitterClient.java
 		
 		AndroidHttpClient httpClient = AndroidHttpClient.newInstance("Android");
 		final HttpResponse response;
@@ -162,48 +131,4 @@ public class TwitterClient {
 		
 		return tweetList;
 	}
-<<<<<<< HEAD
-	
-	/*
-	 * Inserts a list of tweet objects into the content provider. 
-	 * Only new tweets (ie. a tweet that does not have the same username and timestamp as an
-	 * existing tweet in content provider) is inserted
-	 * @param tweetList
-	 */
-	private boolean storeTweetsInContentProvider(ArrayList<ContentValues> tweetList) {
-		Cursor cursor = null;
-		boolean newTweetsStored = false;
-		
-		// For each tweet downloaded from Twitter, store in content provider if 
-		// tweet does not already exist in provider.
-		// Because Twitter API search return the last N most recent tweets for a given hashtag,
-		// we may end up saving lots of duplicates if we don't check for their uniqueness.
-		// Uniqueness of a tweet is determined by the tuple (username, timestamp).
-		for (ContentValues aTweetValue : tweetList) {
-			String username = (String) aTweetValue.get(Twitter.Tweets.USERNAME);
-			String timestamp = (String) aTweetValue.get(Twitter.Tweets.CREATED_DATE);
-			
-			String selection = "username=? and timestamp=?";
-			String [] selectionArgs = new String[2];
-			selectionArgs[0] = username;
-			selectionArgs[1] = timestamp;
-			
-			cursor = mResolver.query(Twitter.Tweets.CONTENT_URI, null, selection, selectionArgs, null);
-			if(cursor.getCount() == 0) {
-				Log.d(TAG, "Inserting tweet into database ...");
-				// Create a new row in db with an uri of 
-				// content://#{Twitter.Tweets.CONTENT_URI}/tweets/<id_value>
-				mResolver.insert(Twitter.Tweets.CONTENT_URI, aTweetValue);
-				newTweetsStored = true;
-			}
-		}
-		
-		if(cursor != null) {
-			cursor.close();
-		}
-		
-		return newTweetsStored;
-	}
-=======
->>>>>>> ae304f2b7283d9879b48adb332bf16bd5a701214
 }

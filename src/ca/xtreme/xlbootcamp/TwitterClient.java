@@ -16,10 +16,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
@@ -43,16 +41,15 @@ public class TwitterClient {
 
 	public static final String TWITTER_API_URL = "http://search.twitter.com/search.json?q=";
 
-	private ContentResolver mResolver;
 	private String mSearchURI;
 	private String mSearchString;
 	
 	public TwitterClient(Context ctx, String searchString) {
-		mResolver = ctx.getContentResolver();
 		mSearchString = searchString;
 		mSearchURI = TWITTER_API_URL + "#" + searchString;
 	}
 
+<<<<<<< HEAD
 	public boolean getTimelineUpdates() {
 		String jsonString = downloadTweetsAsJSON();
 		if(jsonString != null) {
@@ -61,6 +58,16 @@ public class TwitterClient {
 			return updated;
 		}
 		return false;
+=======
+	public ArrayList<ContentValues> retrieveTwitterUpdates() throws TwitterClientException {
+		String jsonString = downloadTweetsAsJSON();
+		
+		if(jsonString == null) {
+			throw new TwitterClientException("Test");
+		}
+
+		return parseTwitterJSON(jsonString);
+>>>>>>> ae304f2b7283d9879b48adb332bf16bd5a701214
 	}
 	
 	/**
@@ -154,6 +161,7 @@ public class TwitterClient {
 		
 		return tweetList;
 	}
+<<<<<<< HEAD
 	
 	/*
 	 * Inserts a list of tweet objects into the content provider. 
@@ -195,4 +203,6 @@ public class TwitterClient {
 		
 		return newTweetsStored;
 	}
+=======
+>>>>>>> ae304f2b7283d9879b48adb332bf16bd5a701214
 }

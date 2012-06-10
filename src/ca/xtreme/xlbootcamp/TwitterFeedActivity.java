@@ -42,7 +42,7 @@ public class TwitterFeedActivity extends ListActivity {
 	private String mSearchString = "bieber";
 	private boolean mConnected = true;
 	private Cursor mCursor;
-	private TweetManager tweetManager;
+	private TweetsManager tweetManager;
 	
 
 	@Override
@@ -52,7 +52,7 @@ public class TwitterFeedActivity extends ListActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		
-		tweetManager = new TweetManager(this.getContentResolver());
+		tweetManager = new TweetsManager(this.getContentResolver());
 		
 		if(isConnectedToNetwork()) {
 			// Initialize client which provides access to Twitter

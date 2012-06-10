@@ -7,12 +7,12 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.util.Log;
 
-public class TweetManager {
+public class TweetsManager {
 	
 	private ContentResolver mResolver;
-	private String TAG = "TweetManager";
+	private String TAG = "TweetsManager";
 	
-	public TweetManager(ContentResolver resolver) {
+	public TweetsManager(ContentResolver resolver) {
 		mResolver = resolver;
 	}
 	

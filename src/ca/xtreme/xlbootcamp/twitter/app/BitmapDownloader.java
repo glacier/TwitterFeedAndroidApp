@@ -1,4 +1,4 @@
-package ca.xtreme.xlbootcamp;
+package ca.xtreme.xlbootcamp.twitter.app;
 
 import java.io.File;
 import java.io.FileNotFoundException;

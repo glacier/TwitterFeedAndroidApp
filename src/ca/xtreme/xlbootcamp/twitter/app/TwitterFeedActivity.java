@@ -1,12 +1,8 @@
-package ca.xtreme.xlbootcamp;
+package ca.xtreme.xlbootcamp.twitter.app;
 
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import ca.xtreme.xlbootcamp.twitter.Twitter;
-import ca.xtreme.xlbootcamp.twitter.TwitterClient;
-import ca.xtreme.xlbootcamp.twitter.TwitterClientException;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -32,6 +28,9 @@ import android.view.animation.AnimationSet;
 import android.view.animation.LayoutAnimationController;
 import android.view.animation.TranslateAnimation;
 import android.widget.ListView;
+import ca.xtreme.xlbootcamp.twitter.R;
+import ca.xtreme.xlbootcamp.twitter.api.TwitterClient;
+import ca.xtreme.xlbootcamp.twitter.api.TwitterClientException;
 
 
 public class TwitterFeedActivity extends ListActivity {
@@ -60,7 +59,7 @@ public class TwitterFeedActivity extends ListActivity {
 		
 		if(isConnectedToNetwork()) {
 			// Initialize client which provides access to Twitter
-			twitter = new TwitterClient(this, mSearchString);
+			twitter = new TwitterClient();
 			
 			// Initialize and set up activity list view
 			setupListView(mSearchString);
@@ -108,12 +107,7 @@ public class TwitterFeedActivity extends ListActivity {
 	 * Handles Activity Lifecycle
 	 * 
 	 */
-	@Override
-	protected void onStop() {
-		super.onStop();
-		stopTimerTask();
-	}
-	
+
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -122,10 +116,7 @@ public class TwitterFeedActivity extends ListActivity {
 
 	@Override
 	protected void onResume() {
-		Log.d(TAG, "onResume() called");
-		
 		super.onResume();
-		
 		if(mConnected) {
 			startTimerTask();
 		}
@@ -148,13 +139,6 @@ public class TwitterFeedActivity extends ListActivity {
 			mTimer.purge();
 		}
 		mTimer = null;
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		stopTimerTask();
-		finish();
 	}
 
 	
@@ -189,7 +173,7 @@ public class TwitterFeedActivity extends ListActivity {
 
 			if (mSearchString != null && mSearchString.length() > 0) {
 				Log.d(TAG, "Display tweets with hashtag " + mSearchString);
-				twitter = new TwitterClient(this, mSearchString);
+				twitter = new TwitterClient();
 				setupListView(mSearchString);
 			}
 		} else {
@@ -313,7 +297,7 @@ public class TwitterFeedActivity extends ListActivity {
 				// Grab the tweets from Twitter.com 
 				// and store in our tweets datastore
 				ArrayList<ContentValues> newTweets;
-				newTweets = twitter.retrieveTwitterUpdates();
+				newTweets = twitter.retrieveRecentTweetsByHashtag(mSearchString);
 				tweetManager.storeTweets(newTweets);
 			} catch (TwitterClientException e) {
 				Log.d(TAG, "Failed to update Twitter.");

@@ -1,8 +1,7 @@
-package ca.xtreme.xlbootcamp;
+package ca.xtreme.xlbootcamp.twitter.app;
 
 import java.util.ArrayList;
 
-import ca.xtreme.xlbootcamp.twitter.Twitter;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;

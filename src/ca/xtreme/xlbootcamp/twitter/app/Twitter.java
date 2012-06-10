@@ -1,4 +1,4 @@
-package ca.xtreme.xlbootcamp.twitter;
+package ca.xtreme.xlbootcamp.twitter.app;
 
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -7,8 +7,8 @@ import android.provider.BaseColumns;
  * Convenience definitions for TweetsDatabaseProvider
  */
 public final class Twitter {
-	public static final String AUTHORITY = "ca.xtreme.xlbootcamp.provider";
-	public static final String HASHTAG_INTENT = "ca.xtreme.xlbootcamp.Hashtag";
+	public static final String AUTHORITY = "ca.xtreme.xlbootcamp.twitter.app.provider";
+	public static final String HASHTAG_INTENT = "ca.xtreme.xlbootcamp.twitter.app.Hashtag";
 	
 	private Twitter() {}
 

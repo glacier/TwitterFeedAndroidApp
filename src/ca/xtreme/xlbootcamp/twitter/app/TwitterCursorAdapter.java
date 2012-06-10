@@ -1,4 +1,4 @@
-package ca.xtreme.xlbootcamp;
+package ca.xtreme.xlbootcamp.twitter.app;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import ca.xtreme.xlbootcamp.twitter.R;
 
 public class TwitterCursorAdapter extends CursorAdapter {
 

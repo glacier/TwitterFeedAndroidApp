@@ -1,6 +1,10 @@
 package ca.xtreme.xlbootcamp.twitter.app;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import ca.xtreme.xlbootcamp.twitter.api.TwitterClient;
 import ca.xtreme.xlbootcamp.twitter.api.TwitterClientException;
@@ -9,6 +13,7 @@ import ca.xtreme.xlbootcamp.twitter.api.TwitterClientException;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 
 public class TweetsHashtagUpdateManager {
@@ -16,15 +21,22 @@ public class TweetsHashtagUpdateManager {
 	private ContentResolver mResolver;
 	private String TAG = "TweetsHashtagUpdateManager";
 	private TwitterClient mTwitter;
+	private Timer mTimer;
+	private String mHashtag;
 	
+	private ExecutorService mExecutorService = Executors.newFixedThreadPool(5);
 	
-	public TweetsHashtagUpdateManager(ContentResolver resolver) {
+	private TweetsHashtagUpdateListener mTweetsHashtagUpdateListener;
+	
+	public TweetsHashtagUpdateManager(ContentResolver resolver, String hashtag, TweetsHashtagUpdateListener tweetsHashtagUpdateListener) {
 		mTwitter = new TwitterClient();
 		mResolver = resolver;
+		mHashtag = hashtag;
+		mTweetsHashtagUpdateListener = tweetsHashtagUpdateListener;
 	}
 	
-	public void updateNow(String hashtag) throws TwitterClientException {
-		storeTweets(mTwitter.retrieveRecentTweetsByHashtag(hashtag));
+	public void updateNow() throws TwitterClientException {
+		storeTweets(mTwitter.retrieveRecentTweetsByHashtag(mHashtag));
 	}
 	
 	/*
@@ -66,4 +78,71 @@ public class TweetsHashtagUpdateManager {
 			cursor.close();
 		}
 	}
+
+	/*
+	 * Launches AsyncTasks for updating the UI periodically.
+	 */
+	private class TweetTimerTask extends TimerTask {
+		@Override
+		public void run() {
+			//mExecutorService.submit(new DownloadTweetTask());
+			new DownloadTweetTask().run();
+		}
+	}
+
+	/*
+	 * Launches AsyncTasks for downloading from Twitter and stores new 
+	 * data into the content provider. When async task is done, notifies the 
+	 * Listview of updates to the content provider.
+	 */
+
+	private class DownloadTweetTask implements Runnable {
+		@Override
+		public void run() {
+			mTweetsHashtagUpdateListener.onUpdateStarted();
+
+			try {
+				// Grab the tweets from Twitter.com 
+				// and store in our tweets datastore
+				updateNow();
+
+				Log.d(TAG, "TweetsDatabaseProvider was updated ... updating listview");
+				
+				mResolver.notifyChange(Uri.withAppendedPath(Twitter.Tweets.CONTENT_URI, "#" + mHashtag), null);
+			
+				mTweetsHashtagUpdateListener.onUpdateSucceeded();
+			} catch (TwitterClientException e) {
+				Log.d(TAG, "Failed to update Twitter.");
+				
+				mTweetsHashtagUpdateListener.onUpdateFailed();
+			}
+		}
+	}
+
+	public void startBackgroundUpdates() {
+		if (mExecutorService != null) {
+			throw new IllegalStateException("Background updates already started");
+		}
+		
+		mExecutorService = Executors.newFixedThreadPool(5);
+		
+		if(mTimer == null) {
+			mTimer = new Timer();
+			mTimer.scheduleAtFixedRate(new TweetTimerTask(), 0, 30000);
+		} else {
+			Log.d(TAG, "A timer instance is not created because it already exists.");
+		}
+	}
+
+	public void stopBackgroundUpdates() {
+		if(mTimer != null) {
+			Log.d(TAG, "timer was cancelled and purged.");
+			mTimer.cancel();
+			mTimer.purge();
+		}
+		mTimer = null;
+		mExecutorService.shutdownNow();
+		mExecutorService=null;
+	}
+	
 }

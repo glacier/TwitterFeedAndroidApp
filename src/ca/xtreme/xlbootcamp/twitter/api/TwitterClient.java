@@ -44,9 +44,10 @@ public class TwitterClient {
 	 * Downloads the latest tweets from Twitter search API as JSON
 	 * @return a serialized JSON string.  The string is null if API call to Twitter 
 	 * failed.
+	 * @throws TwitterClientException 
 	 */
 
-	private String downloadTweetsAsJSON(String hashtag) {
+	private String downloadTweetsAsJSON(String hashtag) throws TwitterClientException {
 		Log.d(TAG, "running downloadTweetsAsJSON");
 		
 		AndroidHttpClient httpClient = AndroidHttpClient.newInstance("Android");
@@ -76,16 +77,12 @@ public class TwitterClient {
 			return builder.toString();
 		} catch (final IOException e) {
 			Log.d(TAG, "HttpClient encountered a problem", e);
+			throw new TwitterClientException("There was a problem downloading the tweets", e);
 		} finally {
 			if(httpClient != null) {
 				httpClient.close();
 			}
 		}
-		
-		// null is returned when the Twitter API call has failed.
-		// This could be due to problems with Twitter or loss of 
-		// network connectivity on the phone.
-		return null;
 	}
 	
 	/**

@@ -1,8 +1,5 @@
 package ca.xtreme.xlbootcamp.twitter.app;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
@@ -14,7 +11,6 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -27,7 +23,6 @@ import android.view.animation.LayoutAnimationController;
 import android.view.animation.TranslateAnimation;
 import android.widget.ListView;
 import ca.xtreme.xlbootcamp.twitter.R;
-import ca.xtreme.xlbootcamp.twitter.api.TwitterClientException;
 
 
 public class TwitterFeedActivity extends ListActivity {
@@ -36,13 +31,56 @@ public class TwitterFeedActivity extends ListActivity {
 	private static final int DIALOG_NOT_CONNECTED_ID = 0;
 	private static final int DIALOG_TWITTER_FAILED_ID = 1;
 	
-	private Timer mTimer = null;
 	private TwitterCursorAdapter mCursorAdapter;
 	private String mSearchString = "bieber";
 	private boolean mConnected = true;
 	private Cursor mCursor;
 	private TweetsHashtagUpdateManager tweetManager;
 	
+	private class ActivityTweetsHashtagUpdateListener implements TweetsHashtagUpdateListener {
+
+		private ProgressDialog progressDialog;
+
+		@Override
+		public void onUpdateStarted() {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					progressDialog = ProgressDialog.show(TwitterFeedActivity.this, "Updating Tweets", "Please Wait ...");
+				}
+			});
+		}
+		
+		@Override
+		public void onUpdateFailed() {
+			// Alert the user that twitter didn't work
+			runOnUiThread(new Runnable() {
+				public void run() {
+					if(progressDialog != null) {
+						progressDialog.dismiss();
+					}
+					
+					showDialog(DIALOG_TWITTER_FAILED_ID);
+				}
+			});
+		}
+
+		@Override
+		public void onUpdateSucceeded() {
+			runOnUiThread(new Runnable() {
+				public void run() {
+					if(progressDialog != null) {
+						progressDialog.dismiss();
+					}
+
+					// Reanimate the list on update
+					ListView list = (ListView) findViewById(android.R.id.list);
+					list.startLayoutAnimation();
+				}
+			});
+		}
+		
+	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -51,7 +89,7 @@ public class TwitterFeedActivity extends ListActivity {
 		
 		if(isConnectedToNetwork()) {
 			// Initialize tweet manager which provides access to Twitter
-			tweetManager = new TweetsHashtagUpdateManager(this.getContentResolver());
+			tweetManager = new TweetsHashtagUpdateManager(this.getContentResolver(), mSearchString, new ActivityTweetsHashtagUpdateListener());
 			
 			// Initialize and set up activity list view
 			setupListView(mSearchString);
@@ -102,43 +140,21 @@ public class TwitterFeedActivity extends ListActivity {
 	@Override
 	protected void onStop() {
 		super.onStop();
-
-		stopTimerTask();
 	}
 	
 	@Override
 	protected void onPause() {
 		super.onPause();
-		stopTimerTask();
+		tweetManager.stopBackgroundUpdates();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		if(mConnected) {
-			startTimerTask();
+			tweetManager.startBackgroundUpdates();
 		}
 	}
-	
-	private void startTimerTask() {
-		// Reschedule the timer task
-		if(mTimer == null) {
-			mTimer = new Timer();
-			mTimer.scheduleAtFixedRate(new TweetTimerTask(), 0, 30000);
-		} else {
-			Log.d(TAG, "A timer instance is not created because it already exists.");
-		}
-	}
-
-	private void stopTimerTask() {
-		if(mTimer != null) {
-			Log.d(TAG, "timer was cancelled and purged.");
-			mTimer.cancel();
-			mTimer.purge();
-		}
-		mTimer = null;
-	}
-
 	
 	/*
 	 * Create menu item
@@ -242,103 +258,4 @@ public class TwitterFeedActivity extends ListActivity {
 		listView.setLayoutAnimation(controller);		
 	}
 
-	
-	/*
-	 * Launches AsyncTasks for updating the UI periodically.
-	 */
-	private class TweetTimerTask extends TimerTask {
-		@Override
-		public void run() {
-			if(isFinishing()) {
-				this.cancel();
-				return;
-			}
-			
-			runOnUiThread(new Runnable() {
-				public void run() {
-					Log.d(TAG, "TimerTask running ...");
-					new DownloadTweetTask().execute();
-				}
-			});
-		}
-	}
-
-	/*
-	 * Launches AsyncTasks for downloading from Twitter and stores new 
-	 * data into the content provider. When async task is done, notifies the 
-	 * Listview of updates to the content provider.
-	 */
-
-	private class DownloadTweetTask extends AsyncTask<Void, Void, Boolean> {
-		private ProgressDialog progressDialog;
-		
-		@Override
-		protected void onPreExecute() {
-			if(isCancelled() || isFinishing()) {
-				this.cancel(true);
-				return;
-			}
-			
-			// Set up progress spinning wheel
-			progressDialog = ProgressDialog.show(TwitterFeedActivity.this, 
-												"Updating Tweets", "Please Wait ...");
-		}
-		
-		@Override
-		protected Boolean doInBackground(Void... params){
-			if(isCancelled() || isFinishing()) {
-				this.cancel(true);
-				return false;
-			}
-
-			try {
-				// Grab the tweets from Twitter.com 
-				// and store in our tweets datastore
-				tweetManager.updateNow(mSearchString);
-				return true;
-			} catch (TwitterClientException e) {
-				Log.d(TAG, "Failed to update Twitter.");
-				
-				// Alert the user that twitter didn't work
-				runOnUiThread(new Runnable() {
-					public void run() {
-						if(progressDialog != null) {
-							progressDialog.dismiss();
-						}
-						
-						showDialog(DIALOG_TWITTER_FAILED_ID);
-					}
-				});
-				
-				// Cancel the execution of this thread
-				this.cancel(true);
-			}
-			
-			return false;
-		}
-
-		@Override
-		protected void onPostExecute(Boolean updated) {
-			
-			if(isCancelled() || isFinishing()) {
-				this.cancel(true);
-				return;
-			}
-			
-			if(progressDialog != null) {
-				progressDialog.dismiss();
-			}
-			
-			if(updated) {
-				Log.d(TAG, "TweetsDatabaseProvider was updated ... updating listview");
-				
-				getContentResolver().notifyChange(
-						Uri.withAppendedPath(Twitter.Tweets.CONTENT_URI, "#" + mSearchString), null);
-			
-				// Reanimate the list on update
-				ListView list = (ListView) findViewById(android.R.id.list);
-				list.startLayoutAnimation();
-			}
-		}
-	}
 }
